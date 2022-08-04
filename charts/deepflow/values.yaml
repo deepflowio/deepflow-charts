@@ -782,57 +782,41 @@ grafana:
     - name: init-custom-plugins
       image: "{{ .Values.global.image.repository }}/deepflow-init-grafana:latest"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
-      command: ['sh']
-      args:  
-      - '-c'
-      - "cp -raf /deepflow-plugins/* /var/lib/grafana/plugins/; cp -raf /dashboards /tmp/"
       volumeMounts:
-      - mountPath: /var/lib/grafana/plugins/
-        name: custom-plugins
-      - mountPath: /tmp/dashboards
-        name: deepflow-dashboards
+      - name: custom-plugins
+        mountPath: /var/lib/grafana/plugins
+    - name: init-grafana-ds-dh
+      image: "{{ .Values.global.image.repository }}/deepflow-init-grafana-ds-dh:latest"
+      imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
+      volumeMounts:
+      - name: deepflow-dashboards
+        mountPath: /tmp/dashboards
+      - name: grafana-dashboards-config
+        mountPath: /etc/grafana/provisioning/dashboards
+      - name: grafana-datasources-config
+        mountPath: /etc/grafana/provisioning/datasources
 
   extraEmptyDirMounts: 
     - name: custom-plugins
       mountPath: /var/lib/grafana/plugins
     - name: deepflow-dashboards
       mountPath: /tmp/dashboards
+    - name: grafana-dashboards-config
+      mountPath: /etc/grafana/provisioning/dashboards
+    - name: grafana-datasources-config
+      mountPath: /etc/grafana/provisioning/datasources
 
-  datasources: 
-   datasources.yaml:
-      apiVersion: 1
-      datasources:
-      - name: DeepFlow
-        type: deepflow-querier-datasource
-        url: 
-        access: proxy
-        isDefault: true
-        uid: "DeepFlow"
-        jsonData:
-          requestUrl: http://{{ include "deepflow.fullname" . }}-server:20416
-          traceUrl: http://{{ include "deepflow.fullname" . }}-app:20418
-      - name: "DeepFlow ClickHouse"
-        type: grafana-clickhouse-datasource
-        uid: "DeepFlow ClickHouse"
-        jsonData:
-          port: 9000
-          server: "{{ $.Release.Name }}-clickhouse"
-          username: default
-        secureJsonData:
-          password: ""
-      - name: "DeepFlow MySQL"
-        type: mysql
-        url: "{{ $.Release.Name }}-mysql:30130"
-        database: deepflow
-        user: root
-        password: deepflow
-        uid: "DeepFlow MySQL"
-        jsonData:
-          maxOpenConns: 5
-          maxIdleConns: 5
-          connMaxLifetime: 14400
-        secureJsonData:
-          password: "{{ .Values.global.password.mysql }}"
+  env:
+    TZ: "Asia/Shanghai"
+    DEEPFLOW_REQUEST_URL: 'http://{{ include "deepflow.fullname" . }}-server:20416'
+    DEEPFLOW_TRACEURL: 'http://{{ include "deepflow.fullname" . }}-app:20418'
+    MYSQL_URL: "{{ $.Release.Name }}-mysql:30130"
+    MYSQL_USER: "root"
+    MYSQL_PASSWORD:  "{{ .Values.global.password.mysql }}"
+    CLICKHOUSE_SERVER: "{{ $.Release.Name }}-clickhouse"
+    CLICKHOUSE_USER: "default"
+    CLICKHOUSE_PASSWORD: ""
+
 
   ingress:
     enabled: false

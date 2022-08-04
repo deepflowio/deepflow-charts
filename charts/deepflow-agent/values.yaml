@@ -12,7 +12,7 @@ global:
 
 image:
   repository: deepflowce/deepflow-agent
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: latest
 
