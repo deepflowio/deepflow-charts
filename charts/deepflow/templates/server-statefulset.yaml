@@ -5,6 +5,10 @@ metadata:
   labels:
     {{- include "deepflow-server.labels" . | nindent 4 }}
 spec:
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
   replicas: {{ tpl .Values.server.replicas . }}
   podManagementPolicy: {{ tpl .Values.server.podManagementPolicy . }}
   serviceName: {{ include "deepflow.fullname" . }}-server-headless
@@ -13,10 +17,12 @@ spec:
       {{- include "deepflow-server.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/customConfig: {{ sha256sum (print (tpl (toYaml .Values.configmap) $)) }}
       labels:
         {{- include "deepflow-server.selectorLabels" . | nindent 8 }}
     spec:
