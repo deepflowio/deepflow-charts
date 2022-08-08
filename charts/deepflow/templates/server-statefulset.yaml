@@ -57,13 +57,18 @@ spec:
           readinessProbe:
             tcpSocket:
               port: server
-            initialDelaySeconds: 5
+            failureThreshold: 12
+            initialDelaySeconds: 15
             periodSeconds: 10
+            successThreshold: 1
           livenessProbe:
-            tcpSocket:
-              port: server
+            failureThreshold: 3
             initialDelaySeconds: 15
             periodSeconds: 20
+            successThreshold: 1
+            tcpSocket:
+              port: server
+            timeoutSeconds: 1
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
           volumeMounts:
