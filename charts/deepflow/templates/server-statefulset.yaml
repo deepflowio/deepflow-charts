@@ -54,23 +54,10 @@ spec:
             - containerPort: 20416
               name: querier
               protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /v1/health/
-              port: server
-            failureThreshold: 12
-            initialDelaySeconds: 15
-            periodSeconds: 10
-            successThreshold: 1
           livenessProbe:
-            failureThreshold: 7
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            successThreshold: 1
-            httpGet:
-              path: /v1/health/
-              port: server
-            timeoutSeconds: 1
+            {{ toYaml .Values.server.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{ toYaml .Values.server.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
           volumeMounts:

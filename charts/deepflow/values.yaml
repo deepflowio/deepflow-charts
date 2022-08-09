@@ -70,6 +70,23 @@ server:
   hostNetwork:  "{{ .Values.global.hostNetwork }}"
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
   podManagementPolicy: "{{ .Values.global.podManagementPolicy }}"
+  readinessProbe:
+    httpGet:
+      path: /v1/health/
+      port: server
+    failureThreshold: 3
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    successThreshold: 1
+  livenessProbe:
+    failureThreshold: 3
+    initialDelaySeconds: 15
+    periodSeconds: 20
+    successThreshold: 1
+    httpGet:
+      path: /v1/health/
+      port: server
+    timeoutSeconds: 1
   service:
     ## Configuration for deepflow-server service
     ##
@@ -187,6 +204,21 @@ app:
   replicas: "1"
   hostNetwork:  "{{ .Values.global.hostNetwork }}"
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
+  readinessProbe:
+    tcpSocket:
+      port: app
+    failureThreshold: 3
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    successThreshold: 1
+  livenessProbe:
+    failureThreshold: 3
+    initialDelaySeconds: 15
+    periodSeconds: 20
+    successThreshold: 1
+    tcpSocket:
+      port: app
+    timeoutSeconds: 1
   service:
     ## Configuration for deepflow querier service
     ##
@@ -632,6 +664,7 @@ deepflow-agent:
   podSecurityContext: {}
     # fsGroup: 2000
   hostNetwork: "true"
+  extraVolumeMounts: []
   securityContext: 
     privileged: true
     # capabilities:

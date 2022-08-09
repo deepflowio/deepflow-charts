@@ -35,7 +35,7 @@ securityContext:
   # runAsUser: 1000
   
 nodeIPInjection: false
-
+extraVolumeMounts: []
 service:
   ## Configuration for Clickhouse service
   ##
