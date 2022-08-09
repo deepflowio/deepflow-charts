@@ -55,7 +55,8 @@ spec:
               name: querier
               protocol: TCP
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /v1/health/
               port: server
             failureThreshold: 12
             initialDelaySeconds: 15
@@ -66,7 +67,8 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 20
             successThreshold: 1
-            tcpSocket:
+            httpGet:
+              path: /v1/health/
               port: server
             timeoutSeconds: 1
           resources:

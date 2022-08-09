@@ -34,16 +34,23 @@ spec:
           imagePullPolicy: "{{ tpl .Values.image.app.pullPolicy . }}"
           ports:
             - name: app
-              containerPort: 20404
+              containerPort: 20418
               protocol: TCP
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+          readinessProbe:
+            tcpSocket:
+              port: app
+            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            successThreshold: 1
+            tcpSocket:
+              port: app
+            timeoutSeconds: 1
           resources:
             {{- toYaml .Values.app.resources | nindent 12 }}
           volumeMounts:
