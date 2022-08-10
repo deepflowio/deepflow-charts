@@ -32,6 +32,7 @@ global:
   ## Whether to enable allInone local storage, if enabled, the local /opt directory is used to store data by default, ignoring the node affinity check, and is not responsible for any data persistence
   allInOneLocalStorage: false 
   storageClass: ""
+  clusterDomain: cluster.local
 
 image:
   server:
@@ -51,6 +52,7 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+clusterDomain: "{{ .Values.global.clusterDomain }}"
 timezone: "{{ .Values.global.timezone }}"
 podAnnotations: {}
 

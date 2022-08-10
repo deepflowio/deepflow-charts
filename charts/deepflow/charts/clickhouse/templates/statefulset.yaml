@@ -8,8 +8,7 @@ metadata:
   labels:
     {{- include "clickhouse.labels" . | nindent 4 }}
 spec:
-spec:
-  replicas: {{ tpl .Values.replicas . }}
+  replicas: {{ tpl (toString .Values.replicas) . }}
   podManagementPolicy: {{ tpl .Values.podManagementPolicy . }}
   serviceName: {{ include "clickhouse.fullname" . }}-headless
   selector:

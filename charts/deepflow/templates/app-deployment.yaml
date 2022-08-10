@@ -5,16 +5,18 @@ metadata:
   labels:
     {{- include "deepflow-app.labels" . | nindent 4 }}
 spec:
-  replicas: {{ tpl .Values.app.replicas . }}
+  replicas: {{ tpl (toString .Values.app.replicas) . }}
   selector:
     matchLabels:
       {{- include "deepflow-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/customConfig: {{ sha256sum (print (tpl (toYaml .Values.configmap) $)) }}
       labels:
         {{- include "deepflow-app.selectorLabels" . | nindent 8 }}
     spec:
