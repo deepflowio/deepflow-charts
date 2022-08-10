@@ -40,7 +40,7 @@ spec:
     nodePort: {{ tpl (toString .nodePort) $ }}
     {{- end }}
     protocol: {{ tpl .protocol $ }}
-    {{- end }}
+  {{- end }}
 {{- if .Values.service.additionalPorts }}
 {{ toYaml .Values.service.additionalPorts | indent 2 }}
 {{- end }}

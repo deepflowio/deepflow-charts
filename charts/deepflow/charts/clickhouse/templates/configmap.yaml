@@ -530,7 +530,8 @@ data:
           -->
         <remote_servers>
             <df_cluster>
-            {{range $i, $e := until (atoi (printf "%d" (int64 ( tpl .Values.replicas . )))) }}
+            {{- $replicas := int (tpl (toString .Values.replicas) .) }}
+            {{- range $i := until $replicas }}
                 <shard>
                      <replica>
                           <host>{{ $.Release.Name }}-clickhouse-headless-{{$i}}</host>

@@ -38,7 +38,7 @@ spec:
     nodePort: {{ tpl (toString .nodePort) $ }}
     {{- end }}
     protocol: {{ tpl .protocol $ }}
-    {{- end }}
+  {{- end }}
 {{- if .Values.service.additionalPorts }}
 {{ toYaml .Values.service.additionalPorts | indent 2 }}
 {{- end }}
@@ -55,15 +55,17 @@ metadata:
 spec:
   clusterIP: None
   ports:
-  - name: tcp
-    port: 9000
-    targetPort: 9000
-    protocol: TCP
+  {{- range .Values.service.ports }}
+  - name: {{ tpl .name $ }}
+    port: {{ tpl (toString .port) $ }}
+    targetPort: {{ tpl (toString .targetPort) $ }}
+    protocol: {{ tpl .protocol $ }}
+  {{- end }}
   selector:
     {{- include "clickhouse.selectorLabels" . | nindent 4 }}
   type: ClusterIP
 
-{{- $replicas := int (tpl .Values.replicas . |toString) }}
+{{- $replicas := int (tpl (toString .Values.replicas) .) }}
 {{- range $i := until $replicas }}
 ---
 apiVersion: v1
@@ -78,10 +80,12 @@ spec:
   type: ClusterIP
   clusterIP: None
   ports:
-  - name: tcp
-    port: 9000
-    targetPort: 9000
-    protocol: TCP
+  {{- range $.Values.service.ports }}
+  - name: {{ tpl .name $ }}
+    port: {{ tpl (toString .port) $ }}
+    targetPort: {{ tpl (toString .targetPort) $ }}
+    protocol: {{ tpl .protocol $ }}
+  {{- end }}
   selector:
     {{- include "clickhouse.selectorLabels" $ | nindent 4 }}
     "statefulset.kubernetes.io/pod-name": {{ include "clickhouse.fullname" $ }}-{{ $i }}

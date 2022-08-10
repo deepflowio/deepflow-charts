@@ -38,32 +38,38 @@ spec:
     nodePort: {{ tpl (toString .nodePort) $ }}
     {{- end }}
     protocol: {{ tpl .protocol $ }}
-    {{- end }}
+  {{- end }}
 {{- if .Values.server.service.additionalPorts }}
 {{ toYaml .Values.server.service.additionalPorts | indent 2 }}
 {{- end }}
   selector:
     {{- include "deepflow-server.selectorLabels" . | nindent 4 }}
   type: "{{ .Values.server.service.type }}"
-{{/* 
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: {{ include "deepflow.fullname" . }}-server-headless
-#   labels:
-#     {{- include "deepflow-server.labels" . | nindent 4 }}
-# spec:
-#   clusterIP: None
-#   ports:
-#   - name: tcp
-#     port: 20416
-#     targetPort: 20416
-#     protocol: TCP
-#   selector:
-#     {{- include "deepflow-server.selectorLabels" . | nindent 4 }}
-#   type: ClusterIP
-*/}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "deepflow.fullname" . }}-server-headless
+  labels:
+    {{- include "deepflow-server.labels" . | nindent 4 }}
+{{- if .Values.server.service.annotations }}
+  annotations:
+{{ toYaml .Values.server.service.annotations | indent 4 }}
+{{- end }}
+spec:
+  clusterIP: None
+  ports:
+  {{- range .Values.server.service.ports }}
+  - name: {{ tpl .name $ }}
+    port: {{ tpl (toString .port) $ }}
+    targetPort: {{ tpl (toString .targetPort) $ }}
+    {{- if and (eq $serviceType "NodePort") (.nodePort) }}
+    {{- end }}
+    protocol: {{ tpl .protocol $ }}
+  {{- end }}
+  selector:
+    {{- include "deepflow-server.selectorLabels" . | nindent 4 }}
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
@@ -105,7 +111,7 @@ spec:
     nodePort: {{ tpl (toString .nodePort) $ }}
     {{- end }}
     protocol: {{ tpl .protocol $ }}
-    {{- end }}
+  {{- end }}
 {{- if .Values.app.service.additionalPorts }}
 {{ toYaml .Values.app.service.additionalPorts | indent 2 }}
 {{- end }}

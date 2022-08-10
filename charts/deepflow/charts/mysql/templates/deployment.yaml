@@ -9,7 +9,7 @@ metadata:
   labels:
     {{- include "mysql.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicas }}
+  replicas: {{ tpl (toString .Values.replicas) . }}
   strategy:
     type: Recreate
   selector:
