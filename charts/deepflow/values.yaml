@@ -26,7 +26,7 @@ global:
     clickhouse: 30900
     deepflowServerIngester: 30033
     deepflowServerGrpc: 30035
-    deepflowServerSslGrpc: 30135
+    # deepflowServerSslGrpc: 30135
     deepflowServerhealthCheck: 30417
   ntpServer: ntp.aliyun.com
   ## Whether to enable allInone local storage, if enabled, the local /opt directory is used to store data by default, ignoring the node affinity check, and is not responsible for any data persistence
@@ -123,7 +123,7 @@ server:
     - name: ssl-grpc
       port: 20135
       targetPort: 20135
-      nodePort: "{{ .Values.global.nodePort.deepflowServerSslGrpc }}"
+      nodePort: # "{{ .Values.global.nodePort.deepflowServerSslGrpc }}"
       protocol: TCP
     - name: ingester
       port: 20033
