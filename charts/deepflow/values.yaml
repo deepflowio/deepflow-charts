@@ -324,14 +324,14 @@ configmap:
         task:
           ## Recorder Database update interval, unit: second
           resource_recorder_interval: 60
-        cloud:
-          ## Kubernetes Interval for data acquisition, in seconds
-          kubernetes_gather_interval: 60
-          ## When ali Public Cloud API obtains the region list, it needs to specify a region
-          aliyun_region_name: cn-beijing
-        recorder:
-          ## Recorder module cache self-healing refresh interval, unit: minute
-          cache_refresh_interval: 3600
+          cloud:
+            ## Kubernetes Interval for data acquisition, in seconds
+            kubernetes_gather_interval: 60
+            ## When ali Public Cloud API obtains the region list, it needs to specify a region
+            aliyun_region_name: cn-beijing
+          recorder:
+            ## Recorder module cache self-healing refresh interval, unit: minute
+            cache_refresh_interval: 3600
       trisolaris:
         tsdb_ip:
         chrony:
