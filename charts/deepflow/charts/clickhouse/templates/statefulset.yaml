@@ -33,7 +33,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         - name: clickhouse-init
-          image: "{{ tpl .Values.image.repository . }}:{{ tpl .Values.image.tag . }}"
+          image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
           volumeMounts:
           - name: clickhouse-path
             mountPath: /var/lib/clickhouse/
@@ -44,7 +44,7 @@ spec:
         - name: clickhouse
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ tpl .Values.image.repository . }}:{{ tpl .Values.image.tag . }}"
+          image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
           imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
           env:
             - name: TZ

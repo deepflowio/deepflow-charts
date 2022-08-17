@@ -35,7 +35,7 @@ spec:
       {{- if and (eq ( tpl $.Values.storageConfig.generateType . ) "hostPath") ($.Values.storageConfig.hostPathChownContainerEnabled) }}
       initContainers:
       - name: hostpath-chown
-        image: "{{ tpl .Values.image.repository . }}:{{ tpl .Values.image.tag . }}"
+        image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
         securityContext:
           runAsNonRoot: false
           runAsUser: 0
@@ -51,7 +51,7 @@ spec:
         - name: mysql
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ tpl .Values.image.repository . }}:{{ tpl .Values.image.tag . }}"
+          image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
           imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
           ports:
             - name: tcp

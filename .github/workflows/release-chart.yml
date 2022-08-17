@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - 'charts/**'
+    paths:
+      - 'charts/**'
   workflow_dispatch:
     inputs:
       ref:
@@ -38,31 +38,10 @@ jobs:
         with:
           version: v3.8.1
 
-      # - name: Run chart-releaser
-      #   uses: helm/chart-releaser-action@v1.4.0
-      #   env:
-      #     CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      
-      # - name: Checkout
-      #   uses: actions/checkout@v3
-      #   with:
-      #     fetch-depth: 0
-      #     ref: 'gh-pages'
-
-      # - name: run
-      #   run: |
-      #     gh repo clone deepflowys/deepflow
-      #     cd deepflow/
-      #     git checkout -b gh-pages origin/gh-pages
-      #     cp -raf ../index.yaml ./index.yaml
-      #     git config --global user.name "action"
-      #     git config --global user.email "$action@users.noreply.github.com"
-      #     git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow
-      #     git add index.yaml
-      #     git commit -am "update charts"
-      #     git push 
-      #   env:
-      #     GH_TOKEN: ${{ secrets.PUSH_SECRET }}
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.4.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Setup Minikube
         uses: manusa/actions-setup-minikube@v2.6.1
@@ -102,11 +81,9 @@ jobs:
 
       - name: add deepflow helm repo
         run: |
-          helm repo add deepflow https://deepflowys.github.io/deepflow
+          helm repo add deepflow https://deepflowys.github.io/deepflow-charts/
           helm repo update deepflow 
-          # helm pull deepflow/deepflow 
-          # tar -zxvf deepflow-*.tgz
-          # helm show chart deepflow/charts/grafana |yq -e |jq -r .appVersion
+
       - name: install deepflow 
         run: |
           helm upgrade --install deepflow -n deepflow deepflow/deepflow --create-namespace \
@@ -122,8 +99,6 @@ jobs:
           DEPENDSIMAGE=$(kubectl get pods -n deepflow -o  jsonpath={.items[*].spec.containers[*].image}|awk -F" " '{for(i=1;i<=NF;i++) print $i}' |grep -v registry.cn-beijing.aliyuncs.com|sort -u)
           for SYNCIMAGE in $DEPENDSIMAGE
             do 
-              #echo "FROM $SYNCIMAGE" > Dockerfile
-              #cat Dockerfile
               SORTIMAGE=$(echo $SYNCIMAGE|awk -F/ '{print $NF}')
               echo $SORTIMAGE
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE"
@@ -132,6 +107,25 @@ jobs:
               skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE 
-              # echo "docker buildx build --platform linux/amd64,linux/arm64 --push -t deepflowce/$SORTIMAGE  -t registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE -t ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE    -f Dockerfile ."
-              # docker buildx build --platform linux/amd64,linux/arm64 --push -t deepflowce/$SORTIMAGE  -t registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE -t ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE    -f Dockerfile .
             done
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: 'gh-pages'
+
+      - name: run
+        run: |
+          gh repo clone deepflowys/deepflow
+          cd deepflow/
+          git checkout -b gh-pages origin/gh-pages
+          cp -raf ../index.yaml ./index.yaml
+          git config --global user.name "action"
+          git config --global user.email "$action@users.noreply.github.com"
+          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow
+          git add index.yaml
+          git commit -am "update charts"
+          git push 
+        env:
+          GH_TOKEN: ${{ secrets.PUSH_SECRET }}

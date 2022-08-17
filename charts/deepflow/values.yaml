@@ -403,10 +403,11 @@ clickhouse:
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
   podManagementPolicy: "{{ .Values.global.podManagementPolicy }}"
   image:
-    repository: clickhouse/clickhouse-server
+    ## Clickhouse Dockerhub Image repository: clickhouse/clickhouse-server
+    repository: "{{ .Values.global.image.repository }}/clickhouse-server"
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "21.8.15.7"
+    tag: 21.8.15.7
 
   timezone: "{{ .Values.global.timezone }}"
   imagePullSecrets: []
@@ -552,6 +553,13 @@ mysql:
   password: "{{ .Values.global.password.mysql }}"
   timezone: "{{ .Values.global.timezone }}"
   podAnnotations: {}
+
+  image:
+    ## MySQL Dockerhub Image repository: mysql
+    repository: "{{ .Values.global.image.repository }}/mysql"
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: 8.0.26
 
   podSecurityContext: {}
     # fsGroup: 2000
@@ -762,6 +770,14 @@ grafana:
   ##
   defaultDashboardsTimezone: utc
   adminPassword: deepflow
+
+  image:
+    ## Grafana aliyun Image repository: registry.cn-beijing.aliyuncs.com/deepflow-ce/grafana
+    repository: grafana/grafana
+    # Overrides the Grafana image tag whose default is the chart appVersion
+    tag: ""
+    sha: ""
+    pullPolicy: IfNotPresent
 
   service:
     enabled: true
