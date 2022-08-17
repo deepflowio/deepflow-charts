@@ -70,18 +70,20 @@ service:
 
 deepflowServerNodeIPS:
 - deepflow-server
-deepflowK8sClusterID: 
+deepflowK8sClusterID:
 agentGroupID:
+controllerPort:
 ## This command takes effect when agent-group-config external_agent_http_proxy_enabled=1 is configured using deepflow-ctl
 ## Set the port to the agent-group-config port
 externalAgentHttpProxyPort: 38086
 
 deepflowAgentConfig: 
   deepflow-agent.yaml: |
-    controller-ips:
-    {{- tpl (toYaml $.Values.deepflowServerNodeIPS ) .| nindent 4 }}
-    {{ if .Values.agentGroupID }}vtap-group-id-request: {{ .Values.agentGroupID }}{{ end }}
-    {{ if .Values.deepflowK8sClusterID }}kubernetes-cluster-id: {{ .Values.deepflowK8sClusterID }}{{ end }}
+    {{- nindent 4 "controller-ips:" -}}
+    {{- tpl (toYaml $.Values.deepflowServerNodeIPS ) .| nindent 4 -}}
+    {{- if .Values.agentGroupID }}{{ nindent 4 "vtap-group-id-request:" }} {{ .Values.agentGroupID }}{{ end -}}
+    {{- if .Values.deepflowK8sClusterID }}{{ nindent 4 "kubernetes-cluster-id:" }} {{ .Values.deepflowK8sClusterID }}{{ end -}}
+    {{- if .Values.controllerPort }}{{ nindent 4 "controller-port:" }} {{ .Values.controllerPort }}{{ end -}}
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
