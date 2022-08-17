@@ -76,12 +76,12 @@ server:
     httpGet:
       path: /v1/health/
       port: server
-    failureThreshold: 3
+    failureThreshold: 10
     initialDelaySeconds: 15
     periodSeconds: 10
     successThreshold: 1
   livenessProbe:
-    failureThreshold: 3
+    failureThreshold: 6
     initialDelaySeconds: 15
     periodSeconds: 20
     successThreshold: 1
