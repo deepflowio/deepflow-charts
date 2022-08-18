@@ -88,7 +88,7 @@ spec:
           imagePullPolicy: "{{ tpl .Values.image.elector.pullPolicy . }}"
           name: elector
           args:
-          - --election=deepflow-server ## Service Name
+          - --election={{- include "deepflow.fullname" . }}-server ## Service Name
           - --election-namespace={{- .Release.Namespace }}
           - --http=localhost:4040
           env:
