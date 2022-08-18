@@ -57,16 +57,10 @@ spec:
             - name: tcp
               containerPort: 30130
               protocol: TCP
-          readinessProbe:
-            tcpSocket:
-              port: tcp
-            initialDelaySeconds: 5
-            periodSeconds: 10
           livenessProbe:
-            tcpSocket:
-              port: tcp
-            initialDelaySeconds: 15
-            periodSeconds: 20
+            {{ toYaml .Values.server.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{ toYaml .Values.server.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:

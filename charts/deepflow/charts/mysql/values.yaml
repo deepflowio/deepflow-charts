@@ -28,6 +28,23 @@ podAnnotations: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
+readinessProbe:
+  httpGet:
+    path: /v1/health/
+    port: server
+  failureThreshold: 6
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  successThreshold: 1
+livenessProbe:
+  failureThreshold: 3
+  initialDelaySeconds: 15
+  periodSeconds: 20
+  successThreshold: 1
+  httpGet:
+    path: /v1/health/
+    port: server
+  timeoutSeconds: 1
 
 securityContext: {}
 storageConfig:
