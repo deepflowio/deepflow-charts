@@ -49,12 +49,16 @@ spec:
             mountPath: /etc/deepflow/app.yaml
             subPath: app.yaml
           env:
+          - name: TZ
+            value: "{{ tpl .Values.timezone . }}"
           - name: K8S_NODE_IP_FOR_DEEPFLOW
             valueFrom:
               fieldRef:
                 fieldPath: status.hostIP
-          - name: TZ
-            value: "{{ tpl .Values.timezone . }}"
+          - name: K8S_POD_NAME_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
       volumes:
         - name: app-config
           configMap:
