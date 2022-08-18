@@ -58,9 +58,9 @@ spec:
               containerPort: 30130
               protocol: TCP
           livenessProbe:
-            {{ toYaml .Values.server.livenessProbe | nindent 12 }}
+            {{ toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
-            {{ toYaml .Values.server.readinessProbe | nindent 12 }}
+            {{ toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:

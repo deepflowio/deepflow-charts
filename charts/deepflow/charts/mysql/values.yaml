@@ -29,9 +29,8 @@ podAnnotations: {}
 podSecurityContext: {}
   # fsGroup: 2000
 readinessProbe:
-  httpGet:
-    path: /v1/health/
-    port: server
+  tcpSocket:
+    port: tcp
   failureThreshold: 6
   initialDelaySeconds: 15
   periodSeconds: 10
@@ -41,9 +40,8 @@ livenessProbe:
   initialDelaySeconds: 15
   periodSeconds: 20
   successThreshold: 1
-  httpGet:
-    path: /v1/health/
-    port: server
+  tcpSocket:
+    port: tcp
   timeoutSeconds: 1
 
 securityContext: {}
