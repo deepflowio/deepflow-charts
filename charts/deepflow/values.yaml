@@ -41,7 +41,7 @@ image:
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   elector:
     repository: "{{ .Values.global.image.repository }}/elector"
-    tag: v6.1.1
+    tag: latest
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
     repository:  "{{ .Values.global.image.repository }}/deepflow-app"
