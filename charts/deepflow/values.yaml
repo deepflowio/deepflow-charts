@@ -371,6 +371,7 @@ configmap:
         host: {{ $.Release.Name }}-clickhouse
     ingester:
       ckdb-service-prefix: {{ $.Release.Name }}-clickhouse-headless
+      es-syslog: false
   app.yaml: |
     app:
       # logfile path
