@@ -7,7 +7,7 @@ global:
     ## Dockerhub Image repository address: deepflowce
     ## AliyunYun Image repository address: registry.cn-beijing.aliyuncs.com/deepflow-ce
     repository: deepflowce
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
   hostNetwork: false
   dnsPolicy: ClusterFirst
   password:
