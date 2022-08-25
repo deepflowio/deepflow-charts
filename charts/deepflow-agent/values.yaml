@@ -34,7 +34,7 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
   
-nodeIPInjection: false
+nodeIPInjection: true
 extraVolumeMounts: []
 service:
   ## Configuration for Clickhouse service
