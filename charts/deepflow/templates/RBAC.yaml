@@ -11,8 +11,10 @@ metadata:
 rules:
   - apiGroups:
     - ""
+    - coordination.k8s.io
     resources:
       - endpoints
+      - leases
     verbs:
       - list
       - get
