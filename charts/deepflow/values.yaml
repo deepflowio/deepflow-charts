@@ -12,7 +12,7 @@ global:
   dnsPolicy: ClusterFirst
   password:
     mysql: deepflow
-    #grafana: deepflow 
+    #grafana: deepflow
   podManagementPolicy: "OrderedReady"
   replicas: 1  ## replicas for deepflow-server and clickhouse
   podAntiAffinityLabelSelector: []
@@ -22,7 +22,7 @@ global:
   nodeAffinityLabelSelector: []
   nodeAffinityTermLabelSelector: []
   timezone: "Asia/Shanghai"
-  nodePort: 
+  nodePort:
     clickhouse: 30900
     deepflowServerIngester: 30033
     deepflowServerGrpc: 30035
@@ -30,7 +30,7 @@ global:
     deepflowServerhealthCheck: 30417
   ntpServer: ntp.aliyun.com
   ## Whether to enable allInone local storage, if enabled, the local /opt directory is used to store data by default, ignoring the node affinity check, and is not responsible for any data persistence
-  allInOneLocalStorage: false 
+  allInOneLocalStorage: false
   storageClass: ""
   clusterDomain: cluster.local
 
@@ -237,7 +237,7 @@ app:
       ## Port to expose on each node
       ## Only used if service.type is 'NodePort'
       ##
-      nodePort: 
+      nodePort:
       protocol: TCP
 
     ## Additional ports to open for deepflow querier service
@@ -279,6 +279,10 @@ configmap:
       ## loglevel: "debug/info/warn/error"
       log-level: info
       listen-port: 20417
+      ## grpc server port
+      grpc-port: 20035
+      ## grpc max message lenth default 100M
+      grpc-max-message-length: 104857600
       ## mysql config
       mysql:
         database: deepflow
@@ -339,14 +343,11 @@ configmap:
           port: 123
           timeout: 1
         # - 127.0.0.1
-        trident-port: 20035
         max-escape-seconds: 3600
         trident-type-for-unkonw-vtap: {{ .Values.config.tridentTypeForUnkonwVtap }}
         platform-vips:
         #  - 55.11.135.18
         node-type: "master"
-        ## grpc max message lenth default 100M
-        grpc-max-message-length: 104857600
         region-domain-prefix: ""
       genesis:
         aging_time: 86400
@@ -429,7 +430,7 @@ clickhouse:
     # runAsUser: 1000
   storageConfig:
     ## persistentVolumeClaim/hostPath
-    ## If you use hostPath, you must configure nodeAffinityLabelSelector, otherwise your data will be lost when Pod drifts, ignored allInOneLocalStorage=true 
+    ## If you use hostPath, you must configure nodeAffinityLabelSelector, otherwise your data will be lost when Pod drifts, ignored allInOneLocalStorage=true
     ## 如果使用hostPath存储clickhouse数据，则必须配置nodeAffinityLabelSelector，避免pod漂移导致数据丢失，allInOneLocalStorage=true 时忽略
     type: persistentVolumeClaim
     generateType: "{{ if $.Values.global.allInOneLocalStorage }}hostPath{{ else }}{{$.Values.storageConfig.type}}{{end}}" #Please ignore this
@@ -439,7 +440,7 @@ clickhouse:
         accessModes:
         - ReadWriteOnce
         size: 100Gi
-        annotations: 
+        annotations:
         storageClass: "{{ .Values.global.storageClass }}"
         # selector:
         #   matchLabels:
@@ -448,7 +449,7 @@ clickhouse:
         accessModes:
         - ReadWriteOnce
         size: 200Gi
-        annotations: 
+        annotations:
         storageClass: "{{ .Values.global.storageClass }}"
         # selector:
         #   matchLabels:
@@ -479,7 +480,7 @@ clickhouse:
     - name: http-monitor-port
       port: 8123
       targetPort: 8123
-      nodePort: 
+      nodePort:
       protocol: TCP
     - name: tcp-port
       port: 9000
@@ -489,7 +490,7 @@ clickhouse:
     - name: interserver-http-port
       port: 9009
       targetPort: 9009
-      nodePort: 
+      nodePort:
       protocol: TCP
 
     ## Additional ports to open for server service
@@ -589,8 +590,8 @@ mysql:
         "helm.sh/resource-policy": keep
       # existingClaim: your-claim-pvc-name
       accessMode: ReadWriteOnce
-      size: 50Gi 
-      
+      size: 50Gi
+
   externalMySQL:
     enabled: false
     hostIP: 192.168.1.1
@@ -610,7 +611,7 @@ mysql:
     - name: tcp
       port: 30130
       targetPort: 30130
-      nodePort: 
+      nodePort:
       protocol: TCP
     ## Additional ports to open for server service
     additionalPorts: []
@@ -676,7 +677,7 @@ deepflow-agent:
     # fsGroup: 2000
   hostNetwork: "true"
   extraVolumeMounts: []
-  securityContext: 
+  securityContext:
     privileged: true
     # capabilities:
     #   drop:
@@ -699,7 +700,7 @@ deepflow-agent:
     - name: receive
       port: 80
       targetPort: receive
-      nodePort: 
+      nodePort:
       protocol: TCP
 
     ## Additional ports to open for server service
@@ -719,8 +720,8 @@ deepflow-agent:
 
   deepflowServerNodeIPS:
   - '{{ include "deepflow.fullname" . }}-server'
-  kubernetesClusterId: 
-  agentGroupId: 
+  kubernetesClusterId:
+  agentGroupId:
   ## This command takes effect when agent-group-config external_agent_http_proxy_enabled=1 is configured using deepflow-ctl
   ## Set the port to the agent-group-config port
   externalAgentHttpProxyPort: 38086
@@ -806,7 +807,7 @@ grafana:
       password: "{{ .Values.global.password.mysql }}"
     plugins:
       allow_loading_unsigned_plugins: deepflow-querier-datasource,deepflow-apptracing-panel,deepflow-topo-panel
-      
+
   extraInitContainers:
     - name: init-custom-plugins
       image: "{{ .Values.global.image.repository }}/deepflow-init-grafana:v6.1.1"
@@ -825,7 +826,7 @@ grafana:
       - name: grafana-datasources-config
         mountPath: /etc/grafana/provisioning/datasources
 
-  extraEmptyDirMounts: 
+  extraEmptyDirMounts:
     - name: custom-plugins
       mountPath: /var/lib/grafana/plugins
     - name: deepflow-dashboards
