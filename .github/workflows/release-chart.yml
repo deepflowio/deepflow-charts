@@ -48,24 +48,21 @@ jobs:
         with:
           fetch-depth: 0
           ref: 'gh-pages'
-      - name: test
+      - name: push to deepflow repo
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          echo "test"
-      # - name: run
-      #   run: |
-      #     gh repo clone deepflowys/deepflow
-      #     cd deepflow/
-      #     git checkout -b gh-pages origin/gh-pages
-      #     cp -raf ../index.yaml ./index.yaml
-      #     git config --global user.name "action"
-      #     git config --global user.email "$action@users.noreply.github.com"
-      #     git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow
-      #     git add index.yaml
-      #     git commit -am "update charts"
-      #     git push 
-      #   env:
-      #     GH_TOKEN: ${{ secrets.PUSH_SECRET }}
+          gh repo clone deepflowys/deepflow
+          cd deepflow/
+          git checkout -b gh-pages origin/gh-pages
+          cp -raf ../index.yaml ./index.yaml
+          git config --global user.name "action"
+          git config --global user.email "$action@users.noreply.github.com"
+          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow
+          git add index.yaml
+          git commit -am "update charts"
+          git push 
+        env:
+          GH_TOKEN: ${{ secrets.PUSH_SECRET }}
           
       - name: Setup Minikube
         uses: manusa/actions-setup-minikube@v2.6.1
