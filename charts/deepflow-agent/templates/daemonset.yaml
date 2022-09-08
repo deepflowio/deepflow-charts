@@ -19,12 +19,18 @@ spec:
       {{- end }}
       labels:
         {{- include "deepflow-agent.selectorLabels" . | nindent 8 }}
+        {{- range $index, $values := .Values.featureFlag }}
+        {{- (printf "deepflow.yunshan.net/featureflag/%s" (lower $values)) | quote | nindent 8 }}: true
+        {{- end }}
     spec:
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: {{ tpl .Values.hostNetwork . }}
       hostPID: true
-      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
+      {{- with .Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "deepflow-agent.fullname" . }}
@@ -50,12 +56,26 @@ spec:
           #     port: otel
           #   initialDelaySeconds: 5
           #   periodSeconds: 10
-          {{- if .Values.nodeIPInjection }}
           env:
           - name: K8S_NODE_IP_FOR_DEEPFLOW
             valueFrom:
               fieldRef:
                 fieldPath: status.hostIP
+          - name: K8S_NODE_NAME_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: K8S_POD_NAME_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: K8S_POD_IP_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          {{- range $index, $values := .Values.featureFlag }}
+          - name: {{ printf "FEATURE_FLAG_%s" $values | quote }}
+            value: true
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

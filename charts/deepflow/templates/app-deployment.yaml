@@ -23,6 +23,9 @@ spec:
       hostNetwork: {{ tpl .Values.app.hostNetwork . }}
       dnsPolicy: {{ tpl .Values.app.dnsPolicy . }}
       imagePullSecrets:
+      {{- with .Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -61,6 +64,10 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
+          - name: K8S_POD_IP_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
           - name: TZ
             value: "{{ tpl .Values.timezone . }}"
       volumes:

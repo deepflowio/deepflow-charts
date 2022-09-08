@@ -25,6 +25,9 @@ spec:
         checksum/customConfig: {{ sha256sum (print (tpl (toYaml .Values.configmap) $)) }}
       labels:
         {{- include "deepflow-server.selectorLabels" . | nindent 8 }}
+        {{- range $index, $values := .Values.server.featureFlag }}
+        {{- (printf "deepflow.yunshan.net/featureflag/%s" (lower $values)) | quote | nindent 8 }}: true
+        {{- end }}
     spec:
       hostNetwork: {{ tpl .Values.server.hostNetwork . }}
       dnsPolicy: {{ tpl .Values.server.dnsPolicy . }}
@@ -32,6 +35,9 @@ spec:
         searches:
         - {{ include "deepflow.fullname" . }}-server-headless.{{ .Release.Namespace }}.svc.{{ tpl .Values.clusterDomain . }}
       imagePullSecrets:
+      {{- with .Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -86,8 +92,16 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
+          - name: K8S_POD_IP_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
           - name: TZ
             value: "{{ tpl .Values.timezone . }}"
+          {{- range $index, $values := .Values.server.featureFlag }}
+          - name: {{ printf "FEATURE_FLAG_%s" $values | quote }}
+            value: true
+          {{- end }}
         - image: "{{ tpl .Values.image.elector.repository . }}:{{ tpl .Values.image.elector.tag . }}"
           imagePullPolicy: "{{ tpl .Values.image.elector.pullPolicy . }}"
           name: elector

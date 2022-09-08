@@ -26,8 +26,11 @@ spec:
     spec:
       hostNetwork: {{ tpl .Values.hostNetwork . }}
       dnsPolicy: {{ tpl .Values.dnsPolicy . }}
-      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
+      {{- with .Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:

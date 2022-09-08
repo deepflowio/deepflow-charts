@@ -12,9 +12,11 @@ global:
 
 image:
   repository: deepflowce/deepflow-agent
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: v6.1.1
+  tag: latest
+
+featureFlag: []
 
 imagePullSecrets: []
 nameOverride: ""
@@ -33,8 +35,7 @@ securityContext:
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-  
-nodeIPInjection: true
+
 extraVolumeMounts: []
 service:
   ## Configuration for Clickhouse service
