@@ -20,7 +20,7 @@ spec:
       labels:
         {{- include "deepflow-agent.selectorLabels" . | nindent 8 }}
         {{- range $index, $values := .Values.featureFlag }}
-        {{- (printf "deepflow.yunshan.net/featureflag/%s" (lower $values)) | quote | nindent 8 }}: "true"
+        {{- (printf "deepflow.yunshan.net/%s" (lower $values)) | quote | nindent 8 }}: "true"
         {{- end }}
     spec:
       dnsPolicy: ClusterFirstWithHostNet

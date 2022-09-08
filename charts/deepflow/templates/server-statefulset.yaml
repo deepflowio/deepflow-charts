@@ -26,7 +26,7 @@ spec:
       labels:
         {{- include "deepflow-server.selectorLabels" . | nindent 8 }}
         {{- range $index, $values := .Values.server.featureFlag }}
-        {{- (printf "deepflow.yunshan.net/featureflag/%s" (lower $values)) | quote | nindent 8 }}: "true"
+        {{- (printf "deepflow.yunshan.net/%s" (lower $values)) | quote | nindent 8 }}: "true"
         {{- end }}
     spec:
       hostNetwork: {{ tpl .Values.server.hostNetwork . }}
