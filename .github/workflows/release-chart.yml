@@ -136,7 +136,7 @@ jobs:
         env:
           http_proxy=${{ secrets.HTTP_PROXY }}
           https_proxy=${{ secrets.HTTP_PROXY }}
-          env.no_proxy='localhost,127.0.0.1,localaddress,.localdomain.com,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,100.64.0.0/10,17.0.0.0/8,.local,169.254.0.0/16,224.0.0.0/4,240.0.0.0/4,.docker.io,docker.io,.github.com,.ghcr.io,ghcr.io,.amazonaws.com,registry-1.docker.io'
+          "env.no_proxy='localhost,127.0.0.1,localaddress,.localdomain.com,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,100.64.0.0/10,17.0.0.0/8,.local,169.254.0.0/16,224.0.0.0/4,240.0.0.0/4,.docker.io,docker.io,.github.com,.ghcr.io,ghcr.io,.amazonaws.com,registry-1.docker.io'"
 
 
   release_chart:
