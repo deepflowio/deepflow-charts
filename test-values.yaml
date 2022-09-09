@@ -1,0 +1,8 @@
+mysql:
+  image:
+    ## MySQL Dockerhub Image repository: mysql
+    repository: mysql
+clickhouse:
+  image:
+    ## Clickhouse Dockerhub Image repository: clickhouse/clickhouse-server
+    repository: clickhouse/clickhouse-server
