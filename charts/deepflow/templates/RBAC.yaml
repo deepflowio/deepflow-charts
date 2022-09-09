@@ -13,12 +13,35 @@ rules:
     - ""
     resources:
       - endpoints
+      - services
     verbs:
       - list
       - get
       - watch
       - create
       - update
+  - apiGroups:
+    - ""
+    resources:
+    - pods
+    verbs:
+      - list
+      - get
+      - watch
+  - apiGroups:
+    - ""
+    resources:
+    - nodes
+    verbs:
+      - list
+      - get
+      - watch
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - '*'
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
