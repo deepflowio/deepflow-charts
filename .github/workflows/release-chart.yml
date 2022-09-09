@@ -98,16 +98,13 @@ jobs:
         run: |
           helm upgrade --install deepflow -n deepflow deepflow/deepflow --create-namespace \
               --set global.allInOneLocalStorage=true \
-              --set global.hostNetwork=true \
-              --set global.dnsPolicy=ClusterFirstWithHostNet \
-              --set global.image.repository="registry.cn-beijing.aliyuncs.com/deepflow-ce"
 
       - name: install skopeo
         run: |
           sudo apt-get update
           sudo apt-get -y install skopeo
 
-      - name: sync image to ghcr and dockerhub
+      - name: sync image
         run: |
           DEPENDSIMAGE=$(kubectl get pods -n deepflow -o  jsonpath={.items[*].spec.containers[*].image}|awk -F" " '{for(i=1;i<=NF;i++) print $i}' |grep -v registry.cn-beijing.aliyuncs.com|sort -u)
           for SYNCIMAGE in $DEPENDSIMAGE
@@ -118,24 +115,9 @@ jobs:
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE "
               skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
+              skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE 
             done
-
-      - name: sync image to aliyun
-        run: |
-          DEPENDSIMAGE=$(kubectl get pods -n deepflow -o  jsonpath={.items[*].spec.containers[*].image}|awk -F" " '{for(i=1;i<=NF;i++) print $i}' |grep -v registry.cn-beijing.aliyuncs.com|sort -u)
-          for SYNCIMAGE in $DEPENDSIMAGE
-            do 
-              SORTIMAGE=$(echo $SYNCIMAGE|awk -F/ '{print $NF}')
-              echo $SORTIMAGE
-              echo "skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE"
-              echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
-              echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE "
-              skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
-            done
-        env:
-          http_proxy=${{ secrets.HTTP_PROXY }}
-          https_proxy=${{ secrets.HTTP_PROXY }}
 
   release_chart:
     name: release chart
