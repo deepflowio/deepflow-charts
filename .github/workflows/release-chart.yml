@@ -111,7 +111,6 @@ jobs:
               skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE 
             done
 
-jobs:
   release_chart:
     name: release chart
     runs-on: ubuntu-latest
