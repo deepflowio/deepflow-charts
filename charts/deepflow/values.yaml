@@ -482,20 +482,10 @@ clickhouse:
     ##
 
     ports:
-    - name: http-monitor-port
-      port: 8123
-      targetPort: 8123
-      nodePort: 
-      protocol: TCP
-    - name: tcp-port
+    - name: clickhouse
       port: 9000
       targetPort: 9000
       nodePort: "{{ .Values.global.nodePort.clickhouse }}"
-      protocol: TCP
-    - name: interserver-http-port
-      port: 9009
-      targetPort: 9009
-      nodePort: 
       protocol: TCP
 
     ## Additional ports to open for server service
