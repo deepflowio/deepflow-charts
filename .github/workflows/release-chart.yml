@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - 'charts/**'
+    tags:
+      - '*'
   workflow_dispatch:
     inputs:
       ref:
