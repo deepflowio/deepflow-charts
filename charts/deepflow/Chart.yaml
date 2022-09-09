@@ -3,7 +3,7 @@ description: An automated observability platform for cloud-native developers.
 name: deepflow
 engine: gotpl
 type: application
-version: 0.1.034
+version: 0.1.035
 appVersion: "6.1.1"
 kubeVersion: ">=1.16.0-0"
 sources:
@@ -24,6 +24,6 @@ dependencies:
   repository: ""
   version: '*.*.*'
 - name: grafana
-  version: "6.32.*"
+  version: "6.*.*"
   repository: https://grafana.github.io/helm-charts
   condition: grafana.enabled
