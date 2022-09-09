@@ -17,6 +17,7 @@ on:
 
 jobs:
   release:
+    name: release
     # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
     # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
     runs-on: ubuntu-latest
@@ -44,7 +45,14 @@ jobs:
         uses: helm/chart-releaser-action@v1.4.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          
+
+
+  sync_image:
+    name: sync image
+    runs-on: ubuntu-latest
+    needs: 
+    - release
+    steps:   
       - name: Setup Minikube
         uses: manusa/actions-setup-minikube@v2.6.1
         with:
@@ -94,10 +102,13 @@ jobs:
               --set global.dnsPolicy=ClusterFirstWithHostNet \
               --set global.image.repository="registry.cn-beijing.aliyuncs.com/deepflow-ce"
 
-      - name: sync image
+      - name: install skopeo
         run: |
           sudo apt-get update
           sudo apt-get -y install skopeo
+
+      - name: sync image to ghcr and dockerhub
+        run: |
           DEPENDSIMAGE=$(kubectl get pods -n deepflow -o  jsonpath={.items[*].spec.containers[*].image}|awk -F" " '{for(i=1;i<=NF;i++) print $i}' |grep -v registry.cn-beijing.aliyuncs.com|sort -u)
           for SYNCIMAGE in $DEPENDSIMAGE
             do 
@@ -107,9 +118,26 @@ jobs:
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE "
               skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
-              skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE 
             done
+
+      - name: sync image to aliyun
+        run: |
+          DEPENDSIMAGE=$(kubectl get pods -n deepflow -o  jsonpath={.items[*].spec.containers[*].image}|awk -F" " '{for(i=1;i<=NF;i++) print $i}' |grep -v registry.cn-beijing.aliyuncs.com|sort -u)
+          for SYNCIMAGE in $DEPENDSIMAGE
+            do 
+              SORTIMAGE=$(echo $SYNCIMAGE|awk -F/ '{print $NF}')
+              echo $SORTIMAGE
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE"
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE "
+              skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
+            done
+        env:
+          http_proxy=${{ secrets.HTTP_PROXY }}
+          https_proxy=${{ secrets.HTTP_PROXY }}
+          env.no_proxy='localhost,127.0.0.1,localaddress,.localdomain.com,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,100.64.0.0/10,17.0.0.0/8,.local,169.254.0.0/16,224.0.0.0/4,240.0.0.0/4,.docker.io,docker.io,.github.com,.ghcr.io,ghcr.io,.amazonaws.com,registry-1.docker.io'
+
 
   release_chart:
     name: release chart
