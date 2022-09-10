@@ -146,8 +146,6 @@ jobs:
     name: release chart
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
-    needs: 
-    - release
     steps:
       - name: Checkout
         uses: actions/checkout@v3
