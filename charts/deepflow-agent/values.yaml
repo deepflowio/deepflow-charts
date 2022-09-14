@@ -62,8 +62,7 @@ service:
   loadBalancerSourceRanges: []
 
   ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-  ## must be Local
-  externalTrafficPolicy: Local
+  externalTrafficPolicy: Cluster
 
   ## Service type
   ##
