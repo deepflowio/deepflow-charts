@@ -24,7 +24,7 @@ global:
   nodeAffinityTermLabelSelector: []
   timezone: "Asia/Shanghai"
   nodePort: 
-    clickhouse: 30900
+    #clickhouse: 30900
     deepflowServerIngester: 30033
     deepflowServerGrpc: 30035
     # deepflowServerSslGrpc: 30135
@@ -151,8 +151,8 @@ server:
     loadBalancerSourceRanges: []
 
     ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-    ## must be Local
-    externalTrafficPolicy: Local
+  
+    externalTrafficPolicy: Cluster
 
     ## Service type
     ##
@@ -321,7 +321,7 @@ configmap:
         # controller/analyzer health_check interval, unit: s
         health_check_interval: 60
         # controller/analyzer health_check port, default: 30417
-        health_check_port: "{{ .Values.global.nodePort.deepflowServerhealthCheck }}"
+        health_check_port: 20417
         health_check_handle_channel_len: 1000
         license_check_interval: 60
         vtap_check_interval: 60
@@ -362,7 +362,7 @@ configmap:
         ipv6_cidr_max_mask: 64
         queue_length: 1000
         data_persistence_interval: 60
-        grpc_server_port: "{{ .Values.global.nodePort.deepflowServerGrpc }}"
+        grpc_server_port: 20035
         local_ip_ranges:
         exclude_ip_ranges:
     querier:
@@ -485,7 +485,7 @@ clickhouse:
     - name: clickhouse
       port: 9000
       targetPort: 9000
-      nodePort: "{{ .Values.global.nodePort.clickhouse }}"
+      nodePort:
       protocol: TCP
 
     ## Additional ports to open for server service
@@ -496,12 +496,12 @@ clickhouse:
     loadBalancerSourceRanges: []
 
     ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-    ## must be Local
-    externalTrafficPolicy: Local
+  
+    externalTrafficPolicy: Cluster
 
     ## Service type
     ##
-    type: NodePort
+    type: ClusterIP
 
 
   resources: {}
@@ -616,7 +616,7 @@ mysql:
     loadBalancerSourceRanges: []
 
     ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-    ## must be Local
+  
     externalTrafficPolicy: Cluster
 
     ## Service type
@@ -708,8 +708,8 @@ deepflow-agent:
     loadBalancerSourceRanges: []
 
     ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-    ## must be Local
-    externalTrafficPolicy: Local
+  
+    externalTrafficPolicy: Cluster
 
     ## Service type
     ##
