@@ -352,7 +352,7 @@ configmap:
         platform-vips:
         #  - 55.11.135.18
         node-type: master
-        region-domain-prefix: ""
+        region-domain-prefix:
         vtap-auto-register: True
         default-tap-mode:
       genesis:

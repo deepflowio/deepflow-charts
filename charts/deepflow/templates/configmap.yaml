@@ -6,205 +6,204 @@ metadata:
     {{- include "deepflow.labels" . | nindent 4 }}
 data:
   server.yaml: |
-    {{- range $elem, $elemVal := index .Values "configmap" "server.yaml" }}
-    {{- if not (kindIs "map" $elemVal) }}
-    {{- if kindIs "invalid" $elemVal }}
-    {{- nindent 4 $elem }}:
-    {{- else if kindIs "string" $elemVal }}
-    {{- nindent 4 $elem }}: {{ tpl $elemVal $ }}
-    {{- else if kindIs "float64" $elemVal }}
-    {{- nindent 4 $elem }}: {{ int $elemVal }}
-    {{- else if kindIs "slice" $elemVal }}
-    {{- nindent 4 $elem }}: 
+    {{- range $elem, $elemVal := index .Values "configmap" "server.yaml" -}}
+    {{- if not (kindIs "map" $elemVal) -}}
+    {{- if kindIs "invalid" $elemVal -}}
+    {{- nindent 4 $elem -}}:
+    {{- else if kindIs "string" $elemVal -}}
+    {{- nindent 4 $elem }}: {{ tpl $elemVal $ -}}
+    {{- else if kindIs "float64" $elemVal -}}
+    {{- nindent 4 $elem }}: {{ int $elemVal -}}
+    {{- else if kindIs "slice" $elemVal -}}
+    {{- nindent 4 $elem -}}: 
     {{- tpl (toYaml $elemVal ) $| nindent 4 -}}
-    {{- else }}
-    {{- nindent 4 $elem }}: {{ toYaml $elemVal }}
-    {{- end }}
-    {{- end }}
-    {{- end }}
-    {{- range $key, $value := index .Values "configmap" "server.yaml" }}
-    {{- if kindIs "map" $value }}
-    {{- nindent 4 $key }}:
-      {{- range $elem, $elemVal := $value }}
-      {{- if not (kindIs "map" $elemVal) }}
-      {{- if kindIs "invalid" $elemVal }}
-      {{- nindent 6 $elem }}:
-      {{- else if kindIs "string" $elemVal }}
-      {{- nindent 6 $elem }}: {{ tpl $elemVal $ }}
-      {{- else if kindIs "float64" $elemVal }}
-      {{- nindent 6 $elem }}: {{ int $elemVal }}
-      {{- else if kindIs "slice" $elemVal }}
-      {{- nindent 6 $elem }}: 
+    {{- else -}}
+    {{- nindent 4 $elem }}: {{ toYaml $elemVal -}}
+    {{- end -}}
+    {{- end -}}
+    {{- end -}}
+    {{- range $key, $value := index .Values "configmap" "server.yaml" -}}
+    {{- if kindIs "map" $value -}}
+    {{- nindent 4 $key -}}:
+      {{- range $elem, $elemVal := $value -}}
+      {{- if not (kindIs "map" $elemVal) -}}
+      {{- if kindIs "invalid" $elemVal -}}
+      {{- nindent 6 $elem -}}:
+      {{- else if kindIs "string" $elemVal -}}
+      {{- nindent 6 $elem }}: {{ tpl $elemVal $ -}}
+      {{- else if kindIs "float64" $elemVal -}}
+      {{- nindent 6 $elem }}: {{ int $elemVal -}}
+      {{- else if kindIs "slice" $elemVal -}}
+      {{- nindent 6 $elem -}}: 
       {{- tpl (toYaml $elemVal ) $| nindent 6 -}}
-      {{- else }}
-      {{- nindent 6 $elem }}: {{  $elemVal }}
-      {{- end }}
-      {{- end }}
-      {{- end }}
-      {{- range $elem, $elemVal := $value }}
-      {{- if kindIs "map" $elemVal }}
-      {{- nindent 6 $elem }}: 
-        {{- range $therrKey, $therrVal := $elemVal }}
-        {{- if not (kindIs "map" $therrVal) }}
-        {{- if kindIs "invalid" $therrVal }}
-        {{- nindent 8 $therrKey }}:
-        {{- else if kindIs "string" $therrVal }}
-        {{- nindent 8 $therrKey }}: {{ tpl $therrVal $ }}
-        {{- else if kindIs "float64" $therrVal }}
-        {{- nindent 8 $therrKey }}: {{ int $therrVal }}
-        {{- else if kindIs "slice" $therrVal }}
-        {{- nindent 8 $therrKey }}: 
+      {{- else -}}
+      {{- nindent 6 $elem }}: {{  $elemVal -}}
+      {{- end -}}
+      {{- end -}}
+      {{- end -}}
+      {{- range $elem, $elemVal := $value -}}
+      {{- if kindIs "map" $elemVal -}}
+      {{- nindent 6 $elem -}}: 
+        {{- range $therrKey, $therrVal := $elemVal -}}
+        {{- if not (kindIs "map" $therrVal) -}}
+        {{- if kindIs "invalid" $therrVal -}}
+        {{- nindent 8 $therrKey -}}:
+        {{- else if kindIs "string" $therrVal -}}
+        {{- nindent 8 $therrKey }}: {{ tpl $therrVal $ -}}
+        {{- else if kindIs "float64" $therrVal -}}
+        {{- nindent 8 $therrKey }}: {{ int $therrVal -}}
+        {{- else if kindIs "slice" $therrVal -}}
+        {{- nindent 8 $therrKey -}}: 
         {{- tpl (toYaml $therrVal ) $| nindent 8 -}}
-        {{- else }}
-        {{- nindent 8 $therrKey }}: {{ $therrVal }}
-        {{- end }}
-        {{- end }}
-        {{- end }}
-        {{- range $therrKey, $therrVal := $elemVal }}
-        {{- if kindIs "map" $therrVal }}
-        {{- nindent 8 $therrKey }}:
-          {{- range $fourKey, $fourVal := $therrVal }}
-          {{- if not (kindIs "map" $fourVal) }}
-          {{- if kindIs "invalid" $fourVal }}
-          {{- nindent 10 $fourKey }}:
-          {{- else if kindIs "string" $fourVal }}
-          {{- nindent 10 $fourKey }}: {{ tpl $fourVal $ }}
-          {{- else if kindIs "float64" $fourVal }}
-          {{- nindent 10 $fourKey }}: {{ int $fourVal }}
-          {{- else if kindIs "slice" $fourVal }}
-          {{- nindent 10 $fourKey }}: 
+        {{- else -}}
+        {{- nindent 8 $therrKey }}: {{ $therrVal -}}
+        {{- end -}}
+        {{- end -}}
+        {{- end -}}
+        {{- range $therrKey, $therrVal := $elemVal -}}
+        {{- if kindIs "map" $therrVal -}}
+        {{- nindent 8 $therrKey -}}:
+          {{- range $fourKey, $fourVal := $therrVal -}}
+          {{- if not (kindIs "map" $fourVal) -}}
+          {{- if kindIs "invalid" $fourVal -}}
+          {{- nindent 10 $fourKey -}}:
+          {{- else if kindIs "string" $fourVal -}}
+          {{- nindent 10 $fourKey }}: {{ tpl $fourVal $ -}}
+          {{- else if kindIs "float64" $fourVal -}}
+          {{- nindent 10 $fourKey }}: {{ int $fourVal -}}
+          {{- else if kindIs "slice" $fourVal -}}
+          {{- nindent 10 $fourKey -}}: 
           {{- tpl (toYaml $fourVal ) $| nindent 10 -}}
-          {{- else }}
-          {{- nindent 10 $fourKey }}: {{ $fourVal }}
-          {{- end }}
-          {{- end }}
-          {{- end }}
-          {{- range $fourKey, $fourVal := $therrVal }}
-          {{- if kindIs "map" $fourVal }}
-          {{- nindent 10 $fourKey }}: 
-            {{- range $fiveKey, $fiveVal := $fourVal }}
-            {{- if not (kindIs "map" $fiveVal) }}
-            {{- if kindIs "invalid" $fiveVal }}
-            {{- nindent 12 $fiveKey }}:
-            {{- else if kindIs "string" $fiveVal }}
-            {{- nindent 12 $fiveKey }}: {{ tpl $fiveVal $ }}
-            {{- else if kindIs "float64" $fiveVal }}
-            {{- nindent 12 $fiveKey }}: {{ int $fiveVal }}
-            {{- else if kindIs "slice" $fiveVal }}
-            {{- nindent 12 $fiveKey }}: 
+          {{- else -}}
+          {{- nindent 10 $fourKey }}: {{ $fourVal -}}
+          {{- end -}}
+          {{- end -}}
+          {{- end -}}
+          {{- range $fourKey, $fourVal := $therrVal -}}
+          {{- if kindIs "map" $fourVal -}}
+          {{- nindent 10 $fourKey -}}: 
+            {{- range $fiveKey, $fiveVal := $fourVal -}}
+            {{- if not (kindIs "map" $fiveVal) -}}
+            {{- if kindIs "invalid" $fiveVal -}}
+            {{- nindent 12 $fiveKey -}}:
+            {{- else if kindIs "string" $fiveVal -}}
+            {{- nindent 12 $fiveKey }}: {{ tpl $fiveVal $ -}}
+            {{- else if kindIs "float64" $fiveVal -}}
+            {{- nindent 12 $fiveKey }}: {{ int $fiveVal -}}
+            {{- else if kindIs "slice" $fiveVal -}}
+            {{- nindent 12 $fiveKey -}}: 
             {{- tpl (toYaml $fiveVal ) $| nindent 12 -}}
-            {{- else }}
-            {{- nindent 12 $fiveKey }}: {{ $fiveVal }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
-          {{- end }}
-          {{- end }}
-        {{- end }}
-        {{- end }}
-      {{- end }}
-      {{- end }}
+            {{- else -}}
+            {{- nindent 12 $fiveKey }}: {{ $fiveVal -}}
+            {{- end -}}
+            {{- end -}}
+            {{- end -}}
+          {{- end -}}
+          {{- end -}}
+        {{- end -}}
+        {{- end -}}
+      {{- end -}}
+      {{- end -}}
+    {{- end -}}
     {{- end }}
-    {{- end }}
-
   app.yaml: |
-    {{- range $elem, $elemVal := index .Values "configmap" "app.yaml" }}
-    {{- if not (kindIs "map" $elemVal) }}
-    {{- if kindIs "invalid" $elemVal }}
-    {{- nindent 4 $elem }}:
-    {{- else if kindIs "string" $elemVal }}
-    {{- nindent 4 $elem }}: {{ tpl $elemVal $ }}
-    {{- else if kindIs "float64" $elemVal }}
-    {{- nindent 4 $elem }}: {{ int $elemVal }}
-    {{- else if kindIs "slice" $elemVal }}
-    {{- nindent 4 $elem }}: 
+    {{- range $elem, $elemVal := index .Values "configmap" "app.yaml" -}}
+    {{- if not (kindIs "map" $elemVal) -}}
+    {{- if kindIs "invalid" $elemVal -}}
+    {{- nindent 4 $elem -}}:
+    {{- else if kindIs "string" $elemVal -}}
+    {{- nindent 4 $elem }}: {{ tpl $elemVal $ -}}
+    {{- else if kindIs "float64" $elemVal -}}
+    {{- nindent 4 $elem }}: {{ int $elemVal -}}
+    {{- else if kindIs "slice" $elemVal -}}
+    {{- nindent 4 $elem -}}: 
     {{- tpl (toYaml $elemVal ) $| nindent 4 -}}
-    {{- else }}
-    {{- nindent 4 $elem }}: {{ toYaml $elemVal }}
-    {{- end }}
-    {{- end }}
-    {{- end }}
-    {{- range $key, $value := index .Values "configmap" "app.yaml" }}
-    {{- if kindIs "map" $value }}
-    {{- nindent 4 $key }}:
-      {{- range $elem, $elemVal := $value }}
-      {{- if not (kindIs "map" $elemVal) }}
-      {{- if kindIs "invalid" $elemVal }}
-      {{- nindent 6 $elem }}:
-      {{- else if kindIs "string" $elemVal }}
-      {{- nindent 6 $elem }}: {{ tpl $elemVal $ }}
-      {{- else if kindIs "float64" $elemVal }}
-      {{- nindent 6 $elem }}: {{ int $elemVal }}
-      {{- else if kindIs "slice" $elemVal }}
-      {{- nindent 6 $elem }}: 
+    {{- else -}}
+    {{- nindent 4 $elem }}: {{ toYaml $elemVal -}}
+    {{- end -}}
+    {{- end -}}
+    {{- end -}}
+    {{- range $key, $value := index .Values "configmap" "app.yaml" -}}
+    {{- if kindIs "map" $value -}}
+    {{- nindent 4 $key -}}:
+      {{- range $elem, $elemVal := $value -}}
+      {{- if not (kindIs "map" $elemVal) -}}
+      {{- if kindIs "invalid" $elemVal -}}
+      {{- nindent 6 $elem -}}:
+      {{- else if kindIs "string" $elemVal -}}
+      {{- nindent 6 $elem }}: {{ tpl $elemVal $ -}}
+      {{- else if kindIs "float64" $elemVal -}}
+      {{- nindent 6 $elem }}: {{ int $elemVal -}}
+      {{- else if kindIs "slice" $elemVal -}}
+      {{- nindent 6 $elem -}}: 
       {{- tpl (toYaml $elemVal ) $| nindent 6 -}}
-      {{- else }}
-      {{- nindent 6 $elem }}: {{  $elemVal }}
-      {{- end }}
-      {{- end }}
-      {{- end }}
-      {{- range $elem, $elemVal := $value }}
-      {{- if kindIs "map" $elemVal }}
-      {{- nindent 6 $elem }}: 
-        {{- range $therrKey, $therrVal := $elemVal }}
-        {{- if not (kindIs "map" $therrVal) }}
-        {{- if kindIs "invalid" $therrVal }}
-        {{- nindent 8 $therrKey }}:
-        {{- else if kindIs "string" $therrVal }}
-        {{- nindent 8 $therrKey }}: {{ tpl $therrVal $ }}
-        {{- else if kindIs "float64" $therrVal }}
-        {{- nindent 8 $therrKey }}: {{ int $therrVal }}
-        {{- else if kindIs "slice" $therrVal }}
-        {{- nindent 8 $therrKey }}: 
+      {{- else -}}
+      {{- nindent 6 $elem }}: {{  $elemVal -}}
+      {{- end -}}
+      {{- end -}}
+      {{- end -}}
+      {{- range $elem, $elemVal := $value -}}
+      {{- if kindIs "map" $elemVal -}}
+      {{- nindent 6 $elem -}}: 
+        {{- range $therrKey, $therrVal := $elemVal -}}
+        {{- if not (kindIs "map" $therrVal) -}}
+        {{- if kindIs "invalid" $therrVal -}}
+        {{- nindent 8 $therrKey -}}:
+        {{- else if kindIs "string" $therrVal -}}
+        {{- nindent 8 $therrKey }}: {{ tpl $therrVal $ -}}
+        {{- else if kindIs "float64" $therrVal -}}
+        {{- nindent 8 $therrKey }}: {{ int $therrVal -}}
+        {{- else if kindIs "slice" $therrVal -}}
+        {{- nindent 8 $therrKey -}}: 
         {{- tpl (toYaml $therrVal ) $| nindent 8 -}}
-        {{- else }}
-        {{- nindent 8 $therrKey }}: {{ $therrVal }}
-        {{- end }}
-        {{- end }}
-        {{- end }}
-        {{- range $therrKey, $therrVal := $elemVal }}
-        {{- if kindIs "map" $therrVal }}
-        {{- nindent 8 $therrKey }}:
-          {{- range $fourKey, $fourVal := $therrVal }}
-          {{- if not (kindIs "map" $fourVal) }}
-          {{- if kindIs "invalid" $fourVal }}
-          {{- nindent 10 $fourKey }}:
-          {{- else if kindIs "string" $fourVal }}
-          {{- nindent 10 $fourKey }}: {{ tpl $fourVal $ }}
-          {{- else if kindIs "float64" $fourVal }}
-          {{- nindent 10 $fourKey }}: {{ int $fourVal }}
-          {{- else if kindIs "slice" $fourVal }}
-          {{- nindent 10 $fourKey }}: 
+        {{- else -}}
+        {{- nindent 8 $therrKey }}: {{ $therrVal -}}
+        {{- end -}}
+        {{- end -}}
+        {{- end -}}
+        {{- range $therrKey, $therrVal := $elemVal -}}
+        {{- if kindIs "map" $therrVal -}}
+        {{- nindent 8 $therrKey -}}:
+          {{- range $fourKey, $fourVal := $therrVal -}}
+          {{- if not (kindIs "map" $fourVal) -}}
+          {{- if kindIs "invalid" $fourVal -}}
+          {{- nindent 10 $fourKey -}}:
+          {{- else if kindIs "string" $fourVal -}}
+          {{- nindent 10 $fourKey }}: {{ tpl $fourVal $ -}}
+          {{- else if kindIs "float64" $fourVal -}}
+          {{- nindent 10 $fourKey }}: {{ int $fourVal -}}
+          {{- else if kindIs "slice" $fourVal -}}
+          {{- nindent 10 $fourKey -}}: 
           {{- tpl (toYaml $fourVal ) $| nindent 10 -}}
-          {{- else }}
-          {{- nindent 10 $fourKey }}: {{ $fourVal }}
-          {{- end }}
-          {{- end }}
-          {{- end }}
-          {{- range $fourKey, $fourVal := $therrVal }}
-          {{- if kindIs "map" $fourVal }}
-          {{- nindent 10 $fourKey }}: 
-            {{- range $fiveKey, $fiveVal := $fourVal }}
-            {{- if not (kindIs "map" $fiveVal) }}
-            {{- if kindIs "invalid" $fiveVal }}
-            {{- nindent 12 $fiveKey }}:
-            {{- else if kindIs "string" $fiveVal }}
-            {{- nindent 12 $fiveKey }}: {{ tpl $fiveVal $ }}
-            {{- else if kindIs "float64" $fiveVal }}
-            {{- nindent 12 $fiveKey }}: {{ int $fiveVal }}
-            {{- else if kindIs "slice" $fiveVal }}
-            {{- nindent 12 $fiveKey }}: 
+          {{- else -}}
+          {{- nindent 10 $fourKey }}: {{ $fourVal -}}
+          {{- end -}}
+          {{- end -}}
+          {{- end -}}
+          {{- range $fourKey, $fourVal := $therrVal -}}
+          {{- if kindIs "map" $fourVal -}}
+          {{- nindent 10 $fourKey -}}: 
+            {{- range $fiveKey, $fiveVal := $fourVal -}}
+            {{- if not (kindIs "map" $fiveVal) -}}
+            {{- if kindIs "invalid" $fiveVal -}}
+            {{- nindent 12 $fiveKey -}}:
+            {{- else if kindIs "string" $fiveVal -}}
+            {{- nindent 12 $fiveKey }}: {{ tpl $fiveVal $ -}}
+            {{- else if kindIs "float64" $fiveVal -}}
+            {{- nindent 12 $fiveKey }}: {{ int $fiveVal -}}
+            {{- else if kindIs "slice" $fiveVal -}}
+            {{- nindent 12 $fiveKey -}}: 
             {{- tpl (toYaml $fiveVal ) $| nindent 12 -}}
-            {{- else }}
-            {{- nindent 12 $fiveKey }}: {{ $fiveVal }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
-          {{- end }}
-          {{- end }}
-        {{- end }}
-        {{- end }}
-      {{- end }}
-      {{- end }}
-    {{- end }}
+            {{- else -}}
+            {{- nindent 12 $fiveKey }}: {{ $fiveVal -}}
+            {{- end -}}
+            {{- end -}}
+            {{- end -}}
+          {{- end -}}
+          {{- end -}}
+        {{- end -}}
+        {{- end -}}
+      {{- end -}}
+      {{- end -}}
+    {{- end -}}
     {{- end }}
