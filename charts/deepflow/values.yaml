@@ -303,66 +303,12 @@ configmap:
         port: 9000
         host: "{{ $.Release.Name }}-clickhouse"
         # user-password:
-      # roze
-      roze:
-        port: 30106
-        timeout: 60
-      # 规格相关定义
-      spec:
-        vtap_group_max: 1000
-        vtap_max_per_group: 10000
-        az_max_per_server: 10
-        data_source_max: 10
-        data_source_retention_time_max: 1000
-      # monitor module config
-      monitor:
-        # controller/analyzer health_check interval, unit: s
-        health_check_interval: 60
-        # controller/analyzer health_check port, default: 30417
-        health_check_port: 20417
-        health_check_handle_channel_len: 1000
-        license_check_interval: 60
-        vtap_check_interval: 60
-        # warrant
-        warrant:
-          host: warrant
-          port: 20413
-          timeout: 30
-      # manager module config
-      manager:
-        cloud_config_check_interval: 60
-        task:
-          resource_recorder_interval: 60
-          cloud:
-            kubernetes_gather_interval: 60
-            aliyun_region_name: cn-beijing
-          recorder:
-            cache_refresh_interval: 60
-            deleted_resource_clean_interval: 24
-            deleted_resource_retention_time: 168
       trisolaris:
-        tsdb_ip:
         chrony:
           host: "{{ tpl .Values.global.ntpServer . }}"
           port: 123
           timeout: 1
         trident-type-for-unkonw-vtap: "{{ .Values.config.tridentTypeForUnkonwVtap }}"
-        platform-vips:
-        #  - 55.11.135.18
-        node-type: master
-        region-domain-prefix:
-        vtap-auto-register: True
-        default-tap-mode:
-      genesis:
-        aging_time: 86400
-        vinterface_aging_time: 300
-        ipv4_cidr_max_mask: 24
-        ipv6_cidr_max_mask: 64
-        queue_length: 1000
-        data_persistence_interval: 60
-        grpc_server_port: 20035
-        local_ip_ranges:
-        exclude_ip_ranges:
     querier:
       # querier http listenport
       listen-port: 20416
@@ -372,7 +318,6 @@ configmap:
         host: "{{ $.Release.Name }}-clickhouse"
         port: 9000
         timeout: 60
-
     ingester:
       ckdb-service-prefix: "{{ $.Release.Name }}-clickhouse-headless"
       es-syslog: false
