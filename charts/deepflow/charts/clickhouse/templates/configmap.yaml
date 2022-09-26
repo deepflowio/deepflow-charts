@@ -858,11 +858,9 @@ data:
         </distributed_ddl>
 
         <!-- Settings to fine tune MergeTree tables. See documentation in source code, in MergeTreeSettings.h -->
-        <!--
         <merge_tree>
-            <max_suspicious_broken_parts>5</max_suspicious_broken_parts>
+            <max_suspicious_broken_parts>1000</max_suspicious_broken_parts>
         </merge_tree>
-        -->
 
         <!-- Protection from accidental DROP.
              If size of a MergeTree table is greater than max_table_size_to_drop (in bytes) than table could not be dropped with any DROP query.
