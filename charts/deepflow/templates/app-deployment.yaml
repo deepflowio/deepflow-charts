@@ -19,6 +19,9 @@ spec:
         checksum/customConfig: {{ sha256sum (print (tpl (toYaml .Values.configmap) $)) }}
       labels:
         {{- include "deepflow-app.selectorLabels" . | nindent 8 }}
+        {{- with .Values.app.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       hostNetwork: {{ tpl .Values.app.hostNetwork . }}
       dnsPolicy: {{ tpl .Values.app.dnsPolicy . }}

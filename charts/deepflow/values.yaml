@@ -38,7 +38,7 @@ global:
 image:
   server:
     repository: "{{ .Values.global.image.repository }}/deepflow-server"
-    tag: v6.1.3
+    tag: latest
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   elector:
     repository: "{{ .Values.global.image.repository }}/elector"
@@ -46,7 +46,7 @@ image:
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
     repository:  "{{ .Values.global.image.repository }}/deepflow-app"
-    tag: v6.1.3
+    tag: latest
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
 
 imagePullSecrets: []
@@ -69,6 +69,8 @@ securityContext: {}
   # runAsUser: 1000
 
 server:
+  ## Pod Labels
+  podLabels: {}
   replicas: "{{ .Values.global.replicas }}"
   hostNetwork:  "{{ .Values.global.hostNetwork }}"
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
@@ -207,6 +209,8 @@ server:
 
 app:
   replicas: "1"
+  ## Pod Labels
+  podLabels: {}
   hostNetwork:  "{{ .Values.global.hostNetwork }}"
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
   readinessProbe:
@@ -603,7 +607,7 @@ deepflow-agent:
     repository: "{{ .Values.global.image.repository }}/deepflow-agent"
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v6.1.3
+    tag: latest
   
   featureFlag: []
 
@@ -750,7 +754,7 @@ grafana:
       
   extraInitContainers:
     - name: init-custom-plugins
-      image: "{{ .Values.global.image.repository }}/deepflow-init-grafana:v6.1.3"
+      image: "{{ .Values.global.image.repository }}/deepflow-init-grafana:latest"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: custom-plugins

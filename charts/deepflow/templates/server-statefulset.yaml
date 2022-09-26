@@ -28,6 +28,9 @@ spec:
         {{- range $index, $values := .Values.server.featureFlag }}
         {{- (printf "deepflow.yunshan.net/%s" (lower $values)) | quote | nindent 8 }}: "true"
         {{- end }}
+        {{- with .Values.server.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       hostNetwork: {{ tpl .Values.server.hostNetwork . }}
       dnsPolicy: {{ tpl .Values.server.dnsPolicy . }}

@@ -22,6 +22,9 @@ spec:
       {{- end }}
       labels:
         {{- include "clickhouse.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       hostNetwork: {{ tpl .Values.hostNetwork . }}
       dnsPolicy: {{ tpl .Values.dnsPolicy . }}

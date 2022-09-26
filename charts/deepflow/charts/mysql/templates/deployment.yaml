@@ -23,6 +23,9 @@ spec:
       {{- end }}
       labels:
         {{- include "mysql.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       hostNetwork: {{ tpl .Values.hostNetwork . }}
       dnsPolicy: {{ tpl .Values.dnsPolicy . }}
