@@ -78,6 +78,10 @@ spec:
             mountPath: /var/lib/clickhouse/
           - name: clickhouse-storage-path
             mountPath: /var/lib/clickhouse_storage/
+        {{- range .Values.storageConfig.extraClickhousePath }}
+          - name: {{ .volumeName }}
+            mountPath: {{ .mountPath }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

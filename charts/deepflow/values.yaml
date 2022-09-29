@@ -429,9 +429,19 @@ clickhouse:
     ##
 
     ports:
-    - name: clickhouse
+    - name: http-monitor-port
+      port: 8123
+      targetPort: 8123
+      nodePort:
+      protocol: TCP
+    - name: tcp-port
       port: 9000
       targetPort: 9000
+      nodePort:
+      protocol: TCP
+    - name: interserver-http-port
+      port: 9009
+      targetPort: 9009
       nodePort:
       protocol: TCP
 

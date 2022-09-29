@@ -35,8 +35,10 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+timezone: "Asia/Shanghai"
 storageConfig:
   ## persistentVolumeClaim/hostPath
+  generateType: "{{ if $.Values.global.allInOneLocalStorage }}hostPath{{ else }}{{$.Values.storageConfig.type}}{{end}}" #Please ignore this
   type: persistentVolumeClaim
   hostPath: /opt/deepflow-clickhouse
   persistence:
@@ -45,7 +47,7 @@ storageConfig:
        - ReadWriteOnce
       size: 100Gi
       annotations: 
-      storageClass: "-"
+      storageClass: ""
       # selector:
       #   matchLabels:
       #     app.kubernetes.io/name: clickhouse
@@ -54,11 +56,26 @@ storageConfig:
        - ReadWriteOnce
       size: 200Gi
       annotations: 
-      storageClass: "-"
+      storageClass: ""
       # selector:
       #   matchLabels:
       #     app.kubernetes.io/name: clickhouse
+    # - name: juicefs
+    #   accessModes:
+    #    - ReadWriteOnce
+    #   size: 200Gi
+    #   annotations: 
+    #   storageClass: "juicefs"
+    #   # selector:
+    #   #   matchLabels:
+    #   #     app.kubernetes.io/name: clickhouse
   s3StorageEnabled: false
+  extraClickhousePath: []
+  # - volumeName: juicefs
+  #   mountPath: /juicefs
+  #   diskName: juicefs
+  #   preferNotToMerge: true 
+
 clickhouse:
   interserverHttpPort: 9009
   maxConcurrentQueries: 2000
@@ -80,11 +97,21 @@ service:
   ##
 
   ports:
-  - name: clickhouse
-    port: 9000
-    targetPort: 9000
-    nodePort: 
-    protocol: TCP
+    - name: http-monitor-port
+      port: 8123
+      targetPort: 8123
+      nodePort:
+      protocol: TCP
+    - name: tcp-port
+      port: 9000
+      targetPort: 9000
+      nodePort:
+      protocol: TCP
+    - name: interserver-http-port
+      port: 9009
+      targetPort: 9009
+      nodePort:
+      protocol: TCP
 
   ## Additional ports to open for server service
   additionalPorts: []
@@ -95,7 +122,7 @@ service:
 
   ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
   ## must be Local
-  externalTrafficPolicy: Local
+  externalTrafficPolicy: Cluster
 
   ## Service type
   ##

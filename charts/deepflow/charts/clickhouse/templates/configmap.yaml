@@ -314,6 +314,11 @@ data:
                 <path_0>
                     <path>/var/lib/clickhouse_storage/</path>
                 </path_0>
+                {{- range .Values.storageConfig.extraClickhousePath }}
+                <{{ .diskName }}>
+                    <path>{{ .mountPath }}</path>
+                </{{ .diskName }}>
+                {{- end }}
 {{- if .Values.storageConfig.s3StorageEnabled }}
                 <s3>
                     <type>s3</type>
@@ -335,6 +340,14 @@ data:
                             <prefer_not_to_merge>true</prefer_not_to_merge>
                         </vol_s3>
 {{- end }}
+                        {{- range .Values.storageConfig.extraClickhousePath }}
+                        <{{ .volumeName }}>
+                            <disk>{{ .diskName }}</disk>
+                        {{- if .preferNotToMerge }}
+                            <prefer_not_to_merge>true</prefer_not_to_merge>
+                        {{- end }}
+                        </{{ .volumeName }}>
+                        {{- end }}
                     </volumes>
                 </df_storage>
             </policies>
