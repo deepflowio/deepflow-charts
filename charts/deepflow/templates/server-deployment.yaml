@@ -1,17 +1,11 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: {{ include "deepflow.fullname" . }}-server
   labels:
     {{- include "deepflow-server.labels" . | nindent 4 }}
 spec:
-  updateStrategy:
-    rollingUpdate:
-      partition: 0
-    type: RollingUpdate
   replicas: {{ tpl (toString .Values.server.replicas) . }}
-  podManagementPolicy: {{ tpl .Values.server.podManagementPolicy . }}
-  serviceName: {{ include "deepflow.fullname" . }}-server-headless
   selector:
     matchLabels:
       {{- include "deepflow-server.selectorLabels" . | nindent 6 }}
@@ -34,9 +28,6 @@ spec:
     spec:
       hostNetwork: {{ tpl .Values.server.hostNetwork . }}
       dnsPolicy: {{ tpl .Values.server.dnsPolicy . }}
-      dnsConfig:
-        searches:
-        - {{ include "deepflow.fullname" . }}-server-headless.{{ .Release.Namespace }}.svc.{{ tpl .Values.clusterDomain . }}
       imagePullSecrets:
       {{- with .Values.global.imagePullSecrets }}
         {{- toYaml . | nindent 8 }}

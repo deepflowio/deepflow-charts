@@ -33,7 +33,6 @@ global:
   ## Whether to enable allInone local storage, if enabled, the local /opt directory is used to store data by default, ignoring the node affinity check, and is not responsible for any data persistence
   allInOneLocalStorage: false 
   storageClass: ""
-  clusterDomain: cluster.local
   externalClickHouse:
     enabled: false  ## Enable external ClickHouse
     type: ep
@@ -77,7 +76,6 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-clusterDomain: "{{ .Values.global.clusterDomain }}"
 timezone: "{{ .Values.global.timezone }}"
 podAnnotations: {}
 
@@ -208,16 +206,7 @@ server:
       topologyKey: "kubernetes.io/hostname"
   podAntiAffinityTermLabelSelector: []
   podAffinityLabelSelector: []
-  podAffinityTermLabelSelector: 
-    - topologyKey: kubernetes.io/hostname
-      weight: 10
-      labelSelector:
-      - key: app
-        operator: In
-        values: deepflow
-      - key: component
-        operator: In
-        values: clickhouse
+  podAffinityTermLabelSelector: []
   nodeAffinityLabelSelector: []
   nodeAffinityTermLabelSelector: []
   extraVolumeMounts: []
@@ -527,7 +516,16 @@ clickhouse:
       topologyKey: "kubernetes.io/hostname"
   podAntiAffinityTermLabelSelector: []
   podAffinityLabelSelector: []
-  podAffinityTermLabelSelector: []
+  podAffinityTermLabelSelector: 
+    - topologyKey: kubernetes.io/hostname
+      weight: 10
+      labelSelector:
+      - key: app
+        operator: In
+        values: deepflow
+      - key: component
+        operator: In
+        values: deepflow-server
   nodeAffinityLabelSelector: []
     ## If you use hostPath, you must configure nodeAffinityLabelSelector, otherwise your data will be lost when Pod drifts
     ## 如果使用hostPath存储mysql数据，则必须配置nodeAffinityLabelSelector，避免pod漂移导致数据丢失
