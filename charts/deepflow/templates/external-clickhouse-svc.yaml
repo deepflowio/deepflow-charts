@@ -1,0 +1,84 @@
+{{- if .Values.externalClickhouse.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "deepflow.fullname" . }}-external-clickhouse
+  labels:
+    {{- include "deepflow.labels" . | nindent 4 }}
+spec:
+  ports:
+  - name: tcp-port
+    port: 9000
+    targetPort: tcp-port
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ include "deepflow.fullname" . }}-external-clickhouse
+subsets:
+{{- range .Values.externalClickhouse.hosts }}
+- addresses:
+  - ip: {{ tpl (toString .ip) $ }}
+  ports:
+  - name: tcp-port
+    port: {{ tpl (toString .port) $ }}
+    protocol: TCP
+{{- end }}
+
+{{/*
+---
+{{- if eq .Values.externalClickhouse.type "cep" }}
+apiVersion: sealos.io/v1beta1
+kind: ClusterEndpoint
+metadata:
+  name: wordpress
+  namespace: default
+spec:
+  hosts:
+    - 172.18.191.215
+  periodSeconds: 10
+  ports:
+    - name: wp-https
+      protocol: TCP
+      port: 38081
+      targetPort: 443
+      tcpSocket:
+        enable: true
+      timeoutSeconds: 1
+      failureThreshold: 3
+      successThreshold: 1
+    - name: wp-http
+      protocol: TCP
+      port: 38082
+      targetPort: 80
+      httpGet:
+        path: /healthz
+        scheme: http
+      timeoutSeconds: 1
+      failureThreshold: 3
+      successThreshold: 1      
+    - name: wp-udp
+      protocol: UDP
+      port: 38003
+      targetPort: 1234
+      udpSocket:
+        enable: true
+        data: "This is flag data for UDP svc test"
+      timeoutSeconds: 1
+      failureThreshold: 3
+      successThreshold: 1
+    - name: wp-grpc
+      protocol: TCP
+      port: 38083
+      targetPort: 8080
+      grpc:
+        enable: true
+      timeoutSeconds: 1
+      failureThreshold: 3
+      successThreshold: 1
+{{- end }}
+{{- end }}
+*/}}
+{{- end }}
