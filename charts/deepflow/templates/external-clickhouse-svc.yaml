@@ -1,4 +1,4 @@
-{{- if .Values.externalClickhouse.enabled }}
+{{- if .Values.global.externalClickhouse.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -18,7 +18,7 @@ kind: Endpoints
 metadata:
   name: {{ include "deepflow.fullname" . }}-external-clickhouse
 subsets:
-{{- range .Values.externalClickhouse.hosts }}
+{{- range .Values.global.externalClickhouse.hosts }}
 - addresses:
   - ip: {{ tpl (toString .ip) $ }}
   ports:
@@ -29,7 +29,7 @@ subsets:
 
 {{/*
 ---
-{{- if eq .Values.externalClickhouse.type "cep" }}
+{{- if eq .Values.global.externalClickhouse.type "cep" }}
 apiVersion: sealos.io/v1beta1
 kind: ClusterEndpoint
 metadata:
