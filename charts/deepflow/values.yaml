@@ -34,7 +34,7 @@ global:
   allInOneLocalStorage: false 
   storageClass: ""
   clusterDomain: cluster.local
-  global.externalClickhouse:
+  externalClickhouse:
     enabled: false
     type: ep
     clusterName: 
@@ -47,7 +47,7 @@ global:
     # - ip: 10.1.2.4
     #   port: 3003
 
-  global.externalMySQL:
+  externalMySQL:
     enabled: false
     ip: 192.168.1.1
     port: 30130
