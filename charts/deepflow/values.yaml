@@ -203,16 +203,17 @@ server:
         values: deepflow-server
       topologyKey: "kubernetes.io/hostname"
   podAntiAffinityTermLabelSelector: []
-  podAffinityLabelSelector:
-    - labelSelector:
+  podAffinityLabelSelector: []
+  podAffinityTermLabelSelector: 
+    - topologyKey: kubernetes.io/hostname
+      weight: 10
+      labelSelector:
       - key: app
         operator: In
         values: deepflow
       - key: component
         operator: In
         values: clickhouse
-      topologyKey: "kubernetes.io/hostname"
-  podAffinityTermLabelSelector: []
   nodeAffinityLabelSelector: []
   nodeAffinityTermLabelSelector: []
   extraVolumeMounts: []
