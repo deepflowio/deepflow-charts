@@ -710,17 +710,13 @@ deepflow-agent:
   ## Set the port to the agent-group-config port
   externalAgentHttpProxyPort: 38086
 
-  resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 768Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 
   nodeSelector: {}
@@ -787,8 +783,8 @@ grafana:
       type: mysql
       host: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}:{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.port}}{{ else }}30130{{end}}"
       name: grafana
-      user: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
-      password: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
+      user: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.username}}{{ else }}root{{end}}"
+      password: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
     plugins:
       allow_loading_unsigned_plugins: deepflow-querier-datasource,deepflow-apptracing-panel,deepflow-topo-panel
 
@@ -825,8 +821,8 @@ grafana:
     DEEPFLOW_REQUEST_URL: 'http://{{ include "deepflow.fullname" . }}-server:20416'
     DEEPFLOW_TRACEURL: 'http://{{ include "deepflow.fullname" . }}-app:20418'
     MYSQL_URL: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}:{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.port}}{{ else }}30130{{end}}"
-    MYSQL_USER: "{{ if $.Values.global.externalMySQL.user }}{{$.Values.global.externalMySQL.ip}}{{ else }}root{{end}}"
-    MYSQL_PASSWORD:  "{{ if $.Values.global.externalMySQL.user }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
+    MYSQL_USER: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.username}}{{ else }}root{{end}}"
+    MYSQL_PASSWORD:  "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
     CLICKHOUSE_SERVER: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
     CLICKHOUSE_USER: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
     CLICKHOUSE_PASSWORD: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
