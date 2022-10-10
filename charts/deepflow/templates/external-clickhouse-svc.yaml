@@ -1,4 +1,7 @@
 {{- if .Values.global.externalClickhouse.enabled }}
+{{- if (lt (int (tpl (toString .Values.server.replicas) .)) (len .Values.global.externalClickhouse.hosts) ) }} 
+{{- fail "The number of external clickhosue replicas cannot be larger than the number of servers for the time being"  -}}
+{{- end}}
 apiVersion: v1
 kind: Service
 metadata:
