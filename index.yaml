@@ -3,6 +3,40 @@ entries:
   deepflow:
   - apiVersion: v2
     appVersion: 6.1.2
+    created: "2022-10-10T09:46:05.246523819Z"
+    dependencies:
+    - condition: clickhouse.enabled
+      name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - condition: mysql.enabled
+      name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.*.*
+    description: An automated observability platform for cloud-native developers.
+    digest: 6c99d3b17cceffc3a5fbd8d96064af2142eae4fd0164bcd11bd055486c40c62e
+    home: https://github.com/deepflowys/deepflow
+    icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    name: deepflow
+    sources:
+    - https://github.com/deepflowys/deepflow
+    type: application
+    urls:
+    - https://github.com/deepflowys/deepflow-charts/releases/download/deepflow-0.1.047/deepflow-0.1.047.tgz
+    version: 0.1.047
+  - apiVersion: v2
+    appVersion: 6.1.2
     created: "2022-10-10T03:29:45.05652386Z"
     dependencies:
     - condition: clickhouse.enabled
@@ -496,6 +530,23 @@ entries:
   deepflow-agent:
   - apiVersion: v2
     appVersion: 6.1.2
+    created: "2022-10-10T09:46:05.547221941Z"
+    description: An automated observability platform for cloud-native developers.
+    digest: 14b7a08f36307513b177b9af89dcb256ad0069f76278c2b58d5b357dea6b1d3f
+    home: https://github.com/deepflowys/deepflow
+    icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    name: deepflow-agent
+    sources:
+    - https://github.com/deepflowys/deepflow
+    type: application
+    urls:
+    - https://github.com/deepflowys/deepflow-charts/releases/download/deepflow-agent-0.1.047/deepflow-agent-0.1.047.tgz
+    version: 0.1.047
+  - apiVersion: v2
+    appVersion: 6.1.2
     created: "2022-10-10T03:29:45.195591825Z"
     description: An automated observability platform for cloud-native developers.
     digest: c2107a697da2ef4ef338996998b4d7c52959440b19cbc847981d033ea50d5a3c
@@ -749,4 +800,4 @@ entries:
     urls:
     - https://github.com/deepflowys/deepflow-charts/releases/download/deepflow-agent-0.1.030/deepflow-agent-0.1.030.tgz
     version: 0.1.030
-generated: "2022-10-10T03:29:45.195752426Z"
+generated: "2022-10-10T09:46:05.547672538Z"
