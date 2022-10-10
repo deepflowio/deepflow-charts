@@ -315,8 +315,8 @@ configmap:
       election-name: "{{ $.Release.Name }}-server"
       mysql:
         database: deepflow
-        user-name: "{{ if $.Values.global.externalMySQL.user }}{{$.Values.global.externalMySQL.ip}}{{ else }}root{{end}}"
-        user-password: "{{ if $.Values.global.externalMySQL.user }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
+        user-name: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.user}}{{ else }}root{{end}}"
+        user-password: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
         #Please ignore this
         host: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}"
         port: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.port}}{{ else }}30130{{end}}"
