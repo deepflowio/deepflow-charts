@@ -37,7 +37,7 @@ securityContext:
     - SYS_PTRACE ## Permission required for collecting K8s information
     - NET_ADMIN ## Indicates the permission for collecting AF_PACKET traffic
     - NET_RAW ## Indicates the permission for collecting AF_PACKET traffic
-    - IPC_LOCK ## optional: Indicates the permission for collecting AF_PACKET traffic, It can significantly degrade performance when not available
+    - IPC_LOCK ## optional MAP_LOCKED MAP_NORESERVE: Indicates the permission for collecting AF_PACKET traffic, It can significantly degrade performance when not available
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000

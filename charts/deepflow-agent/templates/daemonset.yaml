@@ -95,7 +95,7 @@ spec:
           volumeMounts:
             - name: sys-kernel-debug
               mountPath: /sys/kernel/debug
-              readOnly: false ## attach/detach ebpf kprobe/uprobe to kernel
+              readOnly: true
             - name: deepflow-agent-conf
               mountPath: /etc/deepflow-agent
           {{- range .Values.extraVolumeMounts }}
