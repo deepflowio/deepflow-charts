@@ -39,6 +39,16 @@ spec:
       serviceAccountName: {{ include "deepflow-agent.fullname" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.sysctlInitContainer.enabled }}
+      initContainers:
+      - name: configure-sysctl
+        securityContext:
+          runAsUser: 0
+          privileged: true
+        image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
+        imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
+        command: ["sysctl", "-w", "net.core.bpf_jit_enable=1"]
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

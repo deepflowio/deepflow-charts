@@ -315,7 +315,7 @@ configmap:
       election-name: "{{ $.Release.Name }}-server"
       mysql:
         database: deepflow
-        user-name: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.user}}{{ else }}root{{end}}"
+        user-name: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.username}}{{ else }}root{{end}}"
         user-password: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
         #Please ignore this
         host: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}"
@@ -663,13 +663,23 @@ deepflow-agent:
   hostNetwork: "true"
   extraVolumeMounts: []
   securityContext: 
-    privileged: true
-    # capabilities:
-    #   drop:
-    #   - ALL
+    # privileged: true
+    capabilities:
+      add:
+      - SYS_ADMIN ## Permission required for collecting K8s information and eBPF data
+      - SYS_RESOURCE ## Permissions required to collect eBPF data
+      - SYS_PTRACE ## Permission required for collecting K8s information
+      - NET_ADMIN ## Indicates the permission for collecting AF_PACKET traffic
+      - NET_RAW ## Indicates the permission for collecting AF_PACKET traffic
+      - IPC_LOCK ## optional: Indicates the permission for collecting AF_PACKET traffic, It can significantly degrade performance when not available
     # readOnlyRootFilesystem: true
     # runAsNonRoot: true
     # runAsUser: 1000
+
+  ## File read and write permissions required for collecting eBPF data (Optional. If you do not have the permission and the content does not meet expectations, the performance will be significantly reduced. You can set the content in advance.)
+  ## sysctl -w net.core.bpf_jit_enable=1
+  sysctlInitContainer:
+    enabled: true
 
   service:
     ## Configuration for Clickhouse service
