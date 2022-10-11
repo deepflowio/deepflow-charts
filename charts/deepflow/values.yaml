@@ -59,10 +59,6 @@ image:
     repository: "{{ .Values.global.image.repository }}/deepflow-server"
     tag: latest
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
-  elector:
-    repository: "{{ .Values.global.image.repository }}/elector"
-    tag: latest
-    pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
     repository:  "{{ .Values.global.image.repository }}/deepflow-app"
     tag: latest
@@ -95,7 +91,6 @@ server:
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
   podManagementPolicy: "{{ .Values.global.podManagementPolicy }}"
   featureFlag: []
-  # - ELECTION
   readinessProbe:
     httpGet:
       path: /v1/health/
