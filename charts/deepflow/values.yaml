@@ -34,34 +34,43 @@ global:
   allInOneLocalStorage: false 
   storageClass: ""
   clusterDomain: cluster.local
-  externalClickhouse:
-    enabled: false
+  externalClickHouse:
+    enabled: false  ## Enable external ClickHouse
     type: ep
-    clusterName: 
-    storagePolicy:
-    username:
-    password:
+
+    ## External ClickHouse clusterName,The default value is 'default', query method:  'select cluster,host_address,port from system.clusters;'
+    clusterName: default 
+
+    ## External ClickHouse storage policy name,The default value is 'default', query method: 'select policy_name from storage_policies;'
+    storagePolicy: default 
+    username: default ## External ClickHouse username
+    password: password ## External ClickHouse Password
+    
+    ## External ClickHouse IP address and port list, DeepFlow writes IP and port information to an svc endpoint, deepflow-server obtains ClickHouse's IP:Port through get&wath&list endpoint.
+    ## deepflow-server needs to access the real IP address of ClickHouse, the port is connected using tcp-port, usually 9000, and query IP:Port through 'select host_address,port from system.clusters;'.
     hosts: []
     # - ip: 10.1.2.3
     #   port: 9000
     # - ip: 10.1.2.4
-    #   port: 3003
+    #   port: 9000
+    # - ip: 10.1.2.5
+    #   port: 9000
 
   externalMySQL:
-    enabled: false
-    ip: 192.168.1.1
-    port: 30130
-    username:
-    password:
+    enabled: false ## Enable external MySQL
+    ip: 10.1.2.3 ## External Mysql IP address, Need to allow deepflow-server and clickhouse access
+    port: 3306 ## External Mysql port
+    username:  ## External Mysql username
+    password:  ## External Mysql password
 
 image:
   server:
     repository: "{{ .Values.global.image.repository }}/deepflow-server"
-    tag: latest
+    tag: v6.1.4
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
     repository:  "{{ .Values.global.image.repository }}/deepflow-app"
-    tag: latest
+    tag: v6.1.4
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
 
 imagePullSecrets: []
@@ -643,7 +652,7 @@ deepflow-agent:
     repository: "{{ .Values.global.image.repository }}/deepflow-agent"
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
     # Overrides the image tag whose default is the chart appVersion.
-    tag: latest
+    tag: v6.1.4
   
   featureFlag: []
 
