@@ -327,10 +327,10 @@ configmap:
         timeout: 30
       clickhouse:
         database: flow_tag
-        user-name: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
+        user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
-        host: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
-        user-password: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
+        host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
       trisolaris:
         chrony:
           host: "{{ tpl .Values.global.ntpServer . }}"
@@ -342,25 +342,25 @@ configmap:
       listen-port: 20416
       clickhouse:
         database: flow_tag
-        user-name: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
+        user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
-        host: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
-        user-password: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
+        host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
         timeout: 60
     ingester:
       ckdb:
         # use internal or external ckdb
-        external: "{{ $.Values.global.externalClickhouse.enabled }}"
-        host: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+        external: "{{ $.Values.global.externalClickHouse.enabled }}"
+        host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
         port: 9000
         # if `external` is 'true', default value is 'default', else 'df_cluster'
-        cluster-name: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.clusterName}}{{end}}"
+        cluster-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.clusterName}}{{end}}"
         # if `external` is 'true', default value 'default', else 'df_storage'
-        storage-policy:  "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.storagePolicy}}{{end}}"
+        storage-policy:  "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.storagePolicy}}{{end}}"
       ckdb-auth:
-        username: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
+        username: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         # '#','@' special characters are not supported in passwords
-        password: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
+        password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
       es-syslog: false
 
   app.yaml:
@@ -396,7 +396,7 @@ clickhouse:
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
   podManagementPolicy: "{{ .Values.global.podManagementPolicy }}"
   image:
-    ## Clickhouse Dockerhub Image repository: clickhouse/clickhouse-server
+    ## ClickHouse Dockerhub Image repository: clickhouse/clickhouse-server
     repository: "{{ .Values.global.image.repository }}/clickhouse-server"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
@@ -458,13 +458,13 @@ clickhouse:
     connectTimeout: 500
     backgroudPoolSize: 32
   service:
-    ## Configuration for Clickhouse service
+    ## Configuration for ClickHouse service
     ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
-    ## Port for Clickhouse Service to listen on
+    ## Port for ClickHouse Service to listen on
     ##
 
     ports:
@@ -585,13 +585,13 @@ mysql:
       size: 50Gi 
 
   service:
-    ## Configuration for Clickhouse service
+    ## Configuration for ClickHouse service
     ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
-    ## Port for Clickhouse Service to listen on
+    ## Port for ClickHouse Service to listen on
     ##
 
     ports:
@@ -686,13 +686,13 @@ deepflow-agent:
     enabled: true
 
   service:
-    ## Configuration for Clickhouse service
+    ## Configuration for ClickHouse service
     ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
-    ## Port for Clickhouse Service to listen on
+    ## Port for ClickHouse Service to listen on
     ##
 
     ports:
@@ -838,9 +838,9 @@ grafana:
     MYSQL_URL: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}:{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.port}}{{ else }}30130{{end}}"
     MYSQL_USER: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.username}}{{ else }}root{{end}}"
     MYSQL_PASSWORD:  "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
-    CLICKHOUSE_SERVER: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
-    CLICKHOUSE_USER: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
-    CLICKHOUSE_PASSWORD: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
+    CLICKHOUSE_SERVER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+    CLICKHOUSE_USER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
+    CLICKHOUSE_PASSWORD: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
 
   ingress:
     enabled: false
