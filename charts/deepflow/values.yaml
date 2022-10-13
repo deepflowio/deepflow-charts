@@ -805,7 +805,7 @@ grafana:
 
   extraInitContainers:
     - name: init-custom-plugins
-      image: "{{ .Values.global.image.repository }}/deepflow-init-grafana:latest"
+      image: "{{ .Values.global.image.repository }}/deepflow-init-grafana:v6.1.4"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: custom-plugins
