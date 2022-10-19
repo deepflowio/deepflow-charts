@@ -389,7 +389,7 @@ clickhouse:
     repository: "{{ .Values.global.image.repository }}/clickhouse-server"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 21.8.15.7
+    tag: 22.8.6.71
 
   timezone: "{{ .Values.global.timezone }}"
   imagePullSecrets: []
@@ -551,7 +551,7 @@ mysql:
     repository: "{{ .Values.global.image.repository }}/mysql"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 8.0.26
+    tag: 8.0.31
 
   podSecurityContext: {}
     # fsGroup: 2000

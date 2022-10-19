@@ -15,7 +15,7 @@ image:
   repository: mysql
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "8.0.26"
+  tag: 8.0.31
 
 timezone: "Asia/Shanghai"
 hostNetwork: "false"
