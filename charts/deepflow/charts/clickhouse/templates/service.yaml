@@ -64,3 +64,26 @@ spec:
   selector:
     {{- include "clickhouse.selectorLabels" . | nindent 4 }}
   type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "clickhouse.fullname" $ }}-headless-{{ $i }}
+  labels:
+    {{- include "clickhouse.labels" $ | nindent 4 }}
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  {{- range $.Values.service.ports }}
+  - name: {{ tpl .name $ }}
+    port: {{ tpl (toString .port) $ }}
+    targetPort: {{ tpl (toString .targetPort) $ }}
+    protocol: {{ tpl .protocol $ }}
+  {{- end }}
+  selector:
+    {{- include "clickhouse.selectorLabels" $ | nindent 4 }}
+    "statefulset.kubernetes.io/pod-name": {{ include "clickhouse.fullname" $ }}-{{ $i }}
+{{- end }}
