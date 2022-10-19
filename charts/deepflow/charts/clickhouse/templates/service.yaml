@@ -64,6 +64,9 @@ spec:
   selector:
     {{- include "clickhouse.selectorLabels" . | nindent 4 }}
   type: ClusterIP
+
+{{- $replicas := int (tpl (toString .Values.replicas) .) }}
+{{- range $i := until $replicas }}
 ---
 apiVersion: v1
 kind: Service
