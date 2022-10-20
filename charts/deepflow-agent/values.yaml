@@ -28,6 +28,11 @@ podLabels: {}
 podSecurityContext: {}
   # fsGroup: 2000
 hostNetwork: "true"
+
+## Mount the netns hostPath directory read-only 
+netns:
+  mount: true
+  
 securityContext: 
   # privileged: true
   capabilities:

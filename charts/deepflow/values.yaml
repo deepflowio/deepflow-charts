@@ -663,6 +663,9 @@ deepflow-agent:
   podSecurityContext: {}
     # fsGroup: 2000
   hostNetwork: "true"
+  ## Mount the netns hostPath directory read-only 
+  netns:
+    mount: true
   extraVolumeMounts: []
   securityContext: 
     # privileged: true

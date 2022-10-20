@@ -98,6 +98,11 @@ spec:
               readOnly: true
             - name: deepflow-agent-conf
               mountPath: /etc/deepflow-agent
+            {{- if .Values.netns.mount }}
+            - name: netns # required to access net namespace info
+              mountPath: /var/run/netns
+              readOnly: true
+           {{- end }}
           {{- range .Values.extraVolumeMounts }}
             - name: {{ .name }}
               mountPath: {{ .mountPath }}
@@ -105,6 +110,11 @@ spec:
               readOnly: {{ .readOnly }}
           {{- end }}
       volumes:
+        {{- if .Values.netns.mount }}
+        - name: netns
+          hostPath:
+            path: /var/run/netns
+        {{- end }}
         - name: sys-kernel-debug
           hostPath:
             path: /sys/kernel/debug
