@@ -6,7 +6,7 @@ metadata:
     {{- include "deepflow-server.labels" . | nindent 4 }}
 spec:
   replicas: {{ tpl (toString .Values.server.replicas) . }}
-  updateStrategy:
+  strategy:
     type: Recreate
   selector:
     matchLabels:
