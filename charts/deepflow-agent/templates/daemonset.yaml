@@ -114,6 +114,7 @@ spec:
         - name: netns
           hostPath:
             path: /var/run/netns
+            type: DirectoryOrCreate
         {{- end }}
         - name: sys-kernel-debug
           hostPath:
