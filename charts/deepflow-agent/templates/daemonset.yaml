@@ -19,9 +19,6 @@ spec:
       {{- end }}
       labels:
         {{- include "deepflow-agent.selectorLabels" . | nindent 8 }}
-        {{- range $index, $values := .Values.featureFlag }}
-        {{- (printf "deepflow.yunshan.net/%s" (lower $values)) | quote | nindent 8 }}: "true"
-        {{- end }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -86,10 +83,6 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
-          {{- range $index, $values := .Values.featureFlag }}
-          - name: {{ printf "FEATURE_FLAG_%s" $values | quote }}
-            value: "true"
-          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
