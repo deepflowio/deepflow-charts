@@ -111,6 +111,10 @@ resources:
 nodeSelector: {}
 
 tolerations: []
+# - key: "key1"
+#   operator: "Equal"
+#   value: "value1"
+#   effect: "NoSchedule"
 
 podAntiAffinityLabelSelector: []
 podAntiAffinityTermLabelSelector: []
