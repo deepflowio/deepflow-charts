@@ -3,8 +3,8 @@ description: An automated observability platform for cloud-native developers.
 name: deepflow
 engine: gotpl
 type: application
-version: 0.1.045
-appVersion: "6.1.2"
+version: 0.1.071
+appVersion: "6.1.5"
 kubeVersion: ">=1.16.0-0"
 sources:
   - https://github.com/deepflowys/deepflow
@@ -12,11 +12,10 @@ home: https://github.com/deepflowys/deepflow
 keywords:
   - deepflow
 icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.svg
+maintainers:
+  - name: deepflow
+    url: https://github.com/deepflowys/deepflow
 dependencies:
-- name: deepflow-agent
-  repository: ""
-  version: '*.*.*'
-  condition: deepflow-agent.enabled
 - name: clickhouse
   repository: ""
   version: '*.*.*'
@@ -25,6 +24,10 @@ dependencies:
   repository: ""
   version: '*.*.*'
   condition: mysql.enabled
+- name: deepflow-agent
+  repository: ""
+  version: '*.*.*'
+  condition: deepflow-agent.enabled
 - name: grafana
   version: "6.*.*"
   repository: https://grafana.github.io/helm-charts

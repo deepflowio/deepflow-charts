@@ -19,9 +19,6 @@ spec:
       {{- end }}
       labels:
         {{- include "deepflow-agent.selectorLabels" . | nindent 8 }}
-        {{- range $index, $values := .Values.featureFlag }}
-        {{- (printf "deepflow.yunshan.net/%s" (lower $values)) | quote | nindent 8 }}: "true"
-        {{- end }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -39,6 +36,16 @@ spec:
       serviceAccountName: {{ include "deepflow-agent.fullname" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.sysctlInitContainer.enabled }}
+      initContainers:
+      - name: configure-sysctl
+        securityContext:
+          runAsUser: 0
+          privileged: true
+        image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
+        imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
+        command: ["sysctl", "-w", "net.core.bpf_jit_enable=1"]
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -76,18 +83,19 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
-          {{- range $index, $values := .Values.featureFlag }}
-          - name: {{ printf "FEATURE_FLAG_%s" $values | quote }}
-            value: "true"
-          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: sys-kernel-debug
               mountPath: /sys/kernel/debug
-              readOnly: false ## attach/detach ebpf kprobe/uprobe to kernel
+              readOnly: true
             - name: deepflow-agent-conf
               mountPath: /etc/deepflow-agent
+            {{- if .Values.netns.mount }}
+            - name: netns # required to access net namespace info
+              mountPath: /var/run/netns
+              readOnly: true
+           {{- end }}
           {{- range .Values.extraVolumeMounts }}
             - name: {{ .name }}
               mountPath: {{ .mountPath }}
@@ -95,6 +103,12 @@ spec:
               readOnly: {{ .readOnly }}
           {{- end }}
       volumes:
+        {{- if .Values.netns.mount }}
+        - name: netns
+          hostPath:
+            path: /var/run/netns
+            type: DirectoryOrCreate
+        {{- end }}
         - name: sys-kernel-debug
           hostPath:
             path: /sys/kernel/debug

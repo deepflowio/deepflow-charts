@@ -33,34 +33,38 @@ global:
   ## Whether to enable allInone local storage, if enabled, the local /opt directory is used to store data by default, ignoring the node affinity check, and is not responsible for any data persistence
   allInOneLocalStorage: false 
   storageClass: ""
-  clusterDomain: cluster.local
-  externalClickhouse:
-    enabled: false
+  externalClickHouse:
+    enabled: false  ## Enable external ClickHouse
     type: ep
-    clusterName: 
-    storagePolicy:
-    username:
-    password:
+
+    ## External ClickHouse clusterName,The default value is 'default', query method:  'select cluster,host_address,port from system.clusters;'
+    clusterName: default 
+
+    ## External ClickHouse storage policy name,The default value is 'default', query method: 'select policy_name from storage_policies;'
+    storagePolicy: default 
+    username: default ## External ClickHouse username
+    password: password ## External ClickHouse Password
+    
+    ## External ClickHouse IP address and port list, DeepFlow writes IP and port information to an svc endpoint, deepflow-server obtains ClickHouse's IP:Port through get&wath&list endpoint.
+    ## deepflow-server needs to access the real IP address of ClickHouse, the port is connected using tcp-port, usually 9000, and query IP:Port through 'select host_address,port from system.clusters;'.
     hosts: []
     # - ip: 10.1.2.3
     #   port: 9000
     # - ip: 10.1.2.4
-    #   port: 3003
+    #   port: 9000
+    # - ip: 10.1.2.5
+    #   port: 9000
 
   externalMySQL:
-    enabled: false
-    ip: 192.168.1.1
-    port: 30130
-    username:
-    password:
+    enabled: false ## Enable external MySQL
+    ip: 10.1.2.3 ## External Mysql IP address, Need to allow deepflow-server and clickhouse access
+    port: 3306 ## External Mysql port
+    username:  ## External Mysql username
+    password:  ## External Mysql password
 
 image:
   server:
     repository: "{{ .Values.global.image.repository }}/deepflow-server"
-    tag: latest
-    pullPolicy: "{{ .Values.global.image.pullPolicy }}"
-  elector:
-    repository: "{{ .Values.global.image.repository }}/elector"
     tag: latest
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
@@ -72,7 +76,6 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-clusterDomain: "{{ .Values.global.clusterDomain }}"
 timezone: "{{ .Values.global.timezone }}"
 podAnnotations: {}
 
@@ -95,7 +98,6 @@ server:
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
   podManagementPolicy: "{{ .Values.global.podManagementPolicy }}"
   featureFlag: []
-  # - ELECTION
   readinessProbe:
     httpGet:
       path: /v1/health/
@@ -204,16 +206,7 @@ server:
       topologyKey: "kubernetes.io/hostname"
   podAntiAffinityTermLabelSelector: []
   podAffinityLabelSelector: []
-  podAffinityTermLabelSelector: 
-    - topologyKey: kubernetes.io/hostname
-      weight: 10
-      labelSelector:
-      - key: app
-        operator: In
-        values: deepflow
-      - key: component
-        operator: In
-        values: clickhouse
+  podAffinityTermLabelSelector: []
   nodeAffinityLabelSelector: []
   nodeAffinityTermLabelSelector: []
   extraVolumeMounts: []
@@ -290,7 +283,10 @@ app:
   nodeAffinityTermLabelSelector: []
 
 tolerations: []
-
+# - key: "key1"
+#   operator: "Equal"
+#   value: "value1"
+#   effect: "NoSchedule"
 
 
 config:
@@ -315,18 +311,18 @@ configmap:
       election-name: "{{ $.Release.Name }}-server"
       mysql:
         database: deepflow
-        user-name: "{{ if $.Values.global.externalMySQL.user }}{{$.Values.global.externalMySQL.ip}}{{ else }}root{{end}}"
-        user-password: "{{ if $.Values.global.externalMySQL.user }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
+        user-name: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.username}}{{ else }}root{{end}}"
+        user-password: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
         #Please ignore this
         host: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}"
         port: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.port}}{{ else }}30130{{end}}"
         timeout: 30
       clickhouse:
         database: flow_tag
-        user-name: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
+        user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
-        host: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
-        user-password: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
+        host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
       trisolaris:
         chrony:
           host: "{{ tpl .Values.global.ntpServer . }}"
@@ -338,25 +334,25 @@ configmap:
       listen-port: 20416
       clickhouse:
         database: flow_tag
-        user-name: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
+        user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
-        host: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
-        user-password: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
+        host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
         timeout: 60
     ingester:
       ckdb:
         # use internal or external ckdb
-        external: "{{ $.Values.global.externalClickhouse.enabled }}"
-        host: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+        external: "{{ $.Values.global.externalClickHouse.enabled }}"
+        host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
         port: 9000
         # if `external` is 'true', default value is 'default', else 'df_cluster'
-        cluster-name: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.clusterName}}{{end}}"
+        cluster-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.clusterName}}{{end}}"
         # if `external` is 'true', default value 'default', else 'df_storage'
-        storage-policy:  "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.storagePolicy}}{{end}}"
+        storage-policy:  "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.storagePolicy}}{{end}}"
       ckdb-auth:
-        username: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
+        username: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         # '#','@' special characters are not supported in passwords
-        password: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
+        password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
       es-syslog: false
 
   app.yaml:
@@ -392,11 +388,11 @@ clickhouse:
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
   podManagementPolicy: "{{ .Values.global.podManagementPolicy }}"
   image:
-    ## Clickhouse Dockerhub Image repository: clickhouse/clickhouse-server
+    ## ClickHouse Dockerhub Image repository: clickhouse/clickhouse-server
     repository: "{{ .Values.global.image.repository }}/clickhouse-server"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 21.8.15.7
+    tag: 22.8.6.71
 
   timezone: "{{ .Values.global.timezone }}"
   imagePullSecrets: []
@@ -454,13 +450,13 @@ clickhouse:
     connectTimeout: 500
     backgroudPoolSize: 32
   service:
-    ## Configuration for Clickhouse service
+    ## Configuration for ClickHouse service
     ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
-    ## Port for Clickhouse Service to listen on
+    ## Port for ClickHouse Service to listen on
     ##
 
     ports:
@@ -523,7 +519,16 @@ clickhouse:
       topologyKey: "kubernetes.io/hostname"
   podAntiAffinityTermLabelSelector: []
   podAffinityLabelSelector: []
-  podAffinityTermLabelSelector: []
+  podAffinityTermLabelSelector: 
+    - topologyKey: kubernetes.io/hostname
+      weight: 10
+      labelSelector:
+      - key: app
+        operator: In
+        values: deepflow
+      - key: component
+        operator: In
+        values: deepflow-server
   nodeAffinityLabelSelector: []
     ## If you use hostPath, you must configure nodeAffinityLabelSelector, otherwise your data will be lost when Pod drifts
     ## 如果使用hostPath存储mysql数据，则必须配置nodeAffinityLabelSelector，避免pod漂移导致数据丢失
@@ -549,7 +554,7 @@ mysql:
     repository: "{{ .Values.global.image.repository }}/mysql"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 8.0.26
+    tag: 8.0.31
 
   podSecurityContext: {}
     # fsGroup: 2000
@@ -581,13 +586,13 @@ mysql:
       size: 50Gi 
 
   service:
-    ## Configuration for Clickhouse service
+    ## Configuration for ClickHouse service
     ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
-    ## Port for Clickhouse Service to listen on
+    ## Port for ClickHouse Service to listen on
     ##
 
     ports:
@@ -649,8 +654,6 @@ deepflow-agent:
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
     # Overrides the image tag whose default is the chart appVersion.
     tag: latest
-  
-  featureFlag: []
 
   imagePullSecrets: []
   nameOverride: ""
@@ -661,24 +664,37 @@ deepflow-agent:
   podSecurityContext: {}
     # fsGroup: 2000
   hostNetwork: "true"
+  ## Mount the netns hostPath directory read-only 
+  netns:
+    mount: true
   extraVolumeMounts: []
   securityContext: 
-    privileged: true
-    # capabilities:
-    #   drop:
-    #   - ALL
+    # privileged: true
+    capabilities:
+      add:
+      - SYS_ADMIN ## Permission required for collecting K8s information and eBPF data
+      - SYS_RESOURCE ## Permissions required to collect eBPF data
+      - SYS_PTRACE ## Permission required for collecting K8s information
+      - NET_ADMIN ## Indicates the permission for collecting AF_PACKET traffic
+      - NET_RAW ## Indicates the permission for collecting AF_PACKET traffic
+      - IPC_LOCK ## optional MAP_LOCKED MAP_NORESERVE: Indicates the permission for collecting AF_PACKET traffic, It can significantly degrade performance when not available
     # readOnlyRootFilesystem: true
     # runAsNonRoot: true
     # runAsUser: 1000
 
+  ## File read and write permissions required for collecting eBPF data (Optional. If you do not have the permission and the content does not meet expectations, the performance will be significantly reduced. You can set the content in advance.)
+  ## sysctl -w net.core.bpf_jit_enable=1
+  sysctlInitContainer:
+    enabled: true
+
   service:
-    ## Configuration for Clickhouse service
+    ## Configuration for ClickHouse service
     ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
-    ## Port for Clickhouse Service to listen on
+    ## Port for ClickHouse Service to listen on
     ##
 
     ports:
@@ -824,9 +840,9 @@ grafana:
     MYSQL_URL: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}:{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.port}}{{ else }}30130{{end}}"
     MYSQL_USER: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.username}}{{ else }}root{{end}}"
     MYSQL_PASSWORD:  "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
-    CLICKHOUSE_SERVER: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
-    CLICKHOUSE_USER: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.username }}{{ else }}default{{end}}"
-    CLICKHOUSE_PASSWORD: "{{ if $.Values.global.externalClickhouse.enabled }}{{ $.Values.global.externalClickhouse.password }}{{ else }}{{end}}"
+    CLICKHOUSE_SERVER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+    CLICKHOUSE_USER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
+    CLICKHOUSE_PASSWORD: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
 
   ingress:
     enabled: false

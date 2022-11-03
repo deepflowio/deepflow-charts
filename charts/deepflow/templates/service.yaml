@@ -49,31 +49,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "deepflow.fullname" . }}-server-headless
-  labels:
-    {{- include "deepflow-server.labels" . | nindent 4 }}
-{{- if .Values.server.service.annotations }}
-  annotations:
-{{ toYaml .Values.server.service.annotations | indent 4 }}
-{{- end }}
-spec:
-  clusterIP: None
-  ports:
-  {{- range .Values.server.service.ports }}
-  - name: {{ tpl .name $ }}
-    port: {{ tpl (toString .port) $ }}
-    targetPort: {{ tpl (toString .targetPort) $ }}
-    {{- if and (eq $serviceType "NodePort") (.nodePort) }}
-    {{- end }}
-    protocol: {{ tpl .protocol $ }}
-  {{- end }}
-  selector:
-    {{- include "deepflow-server.selectorLabels" . | nindent 4 }}
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
   name: {{ include "deepflow.fullname" . }}-app
   labels:
     {{- include "deepflow-app.labels" . | nindent 4 }}

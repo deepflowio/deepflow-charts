@@ -1,4 +1,7 @@
-{{- if .Values.global.externalClickhouse.enabled }}
+{{- if .Values.global.externalClickHouse.enabled }}
+{{- if (lt (int (tpl (toString .Values.server.replicas) .)) (len .Values.global.externalClickHouse.hosts) ) }} 
+{{- fail "The number of external ClickHosue replicas cannot be larger than the number of servers for the time being"  -}}
+{{- end}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -18,7 +21,7 @@ kind: Endpoints
 metadata:
   name: {{ include "deepflow.fullname" . }}-external-clickhouse
 subsets:
-{{- range .Values.global.externalClickhouse.hosts }}
+{{- range .Values.global.externalClickHouse.hosts }}
 - addresses:
   - ip: {{ tpl (toString .ip) $ }}
   ports:

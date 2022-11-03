@@ -15,8 +15,9 @@ image:
   repository: mysql
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "8.0.26"
+  tag: 8.0.31
 
+timezone: "Asia/Shanghai"
 hostNetwork: "false"
 dnsPolicy: ClusterFirst
 imagePullSecrets: []
@@ -46,11 +47,12 @@ livenessProbe:
 
 securityContext: {}
 storageConfig:
+  generateType: "{{ if $.Values.global.allInOneLocalStorage }}hostPath{{ else }}{{$.Values.storageConfig.type}}{{end}}" #Please ignore this
   ## persistentVolumeClaim/hostPath
   type: persistentVolumeClaim
   hostPath: /opt/deepflow-mysql
   persistence:
-    storageClass: "-"
+    storageClass: ""
     annotations:
       "helm.sh/resource-policy": keep
     # existingClaim: your-claim-pvc-name

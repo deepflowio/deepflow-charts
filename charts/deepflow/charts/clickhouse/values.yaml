@@ -17,7 +17,7 @@ image:
   repository: clickhouse/clickhouse-server
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "21.8.15.7"
+  tag: 22.8.6.71
 
 imagePullSecrets: []
 nameOverride: ""

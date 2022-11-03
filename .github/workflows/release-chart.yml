@@ -7,7 +7,7 @@ on:
     paths:
       - 'charts/**'
     tags:
-      - '*'
+      - 'v*'
   workflow_dispatch:
     inputs:
       ref:

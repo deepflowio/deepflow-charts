@@ -1,17 +1,13 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: {{ include "deepflow.fullname" . }}-server
   labels:
     {{- include "deepflow-server.labels" . | nindent 4 }}
 spec:
-  updateStrategy:
-    rollingUpdate:
-      partition: 0
-    type: RollingUpdate
   replicas: {{ tpl (toString .Values.server.replicas) . }}
-  podManagementPolicy: {{ tpl .Values.server.podManagementPolicy . }}
-  serviceName: {{ include "deepflow.fullname" . }}-server-headless
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "deepflow-server.selectorLabels" . | nindent 6 }}
@@ -34,9 +30,6 @@ spec:
     spec:
       hostNetwork: {{ tpl .Values.server.hostNetwork . }}
       dnsPolicy: {{ tpl .Values.server.dnsPolicy . }}
-      dnsConfig:
-        searches:
-        - {{ include "deepflow.fullname" . }}-server-headless.{{ .Release.Namespace }}.svc.{{ tpl .Values.clusterDomain . }}
       imagePullSecrets:
       {{- with .Values.global.imagePullSecrets }}
         {{- toYaml . | nindent 8 }}
@@ -99,39 +92,16 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
+          - name: K8S_NAMESPACE_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           - name: TZ
             value: "{{ tpl .Values.timezone . }}"
           {{- range $index, $values := .Values.server.featureFlag }}
           - name: {{ printf "FEATURE_FLAG_%s" $values | quote }}
             value: "true"
           {{- end }}
-        - image: "{{ tpl .Values.image.elector.repository . }}:{{ tpl .Values.image.elector.tag . }}"
-          imagePullPolicy: "{{ tpl .Values.image.elector.pullPolicy . }}"
-          name: elector
-          args:
-          - --election={{- include "deepflow.fullname" . }}-server ## Service Name
-          - --election-namespace={{- .Release.Namespace }}
-          - --http=localhost:4040
-          env:
-          - name: TZ
-            value: "{{ tpl .Values.timezone . }}"
-          - name: K8S_NODE_IP_FOR_DEEPFLOW
-            valueFrom:
-              fieldRef:
-                fieldPath: status.hostIP
-          - name: K8S_POD_NAME_FOR_DEEPFLOW
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
-          ports:
-            - containerPort: 4040
-          resources:
-            limits:
-              cpu: 100m
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              memory: 128Mi
       volumes:
         - name: server-config
           configMap:
