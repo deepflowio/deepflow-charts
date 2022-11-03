@@ -1025,6 +1025,7 @@ data:
                 <max_distributed_connections>2048</max_distributed_connections>
                 <distributed_connections_pool_size>2048</distributed_connections_pool_size>
                 <connections_with_failover_max_tries>10</connections_with_failover_max_tries>
+                <skip_unavailable_shards>1</skip_unavailable_shards>
             </default>
 
             <!-- Profile that allows only read queries. -->
