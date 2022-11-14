@@ -187,6 +187,15 @@ jobs:
             /imagebuild_apps deepflow stable
           token: "${{ secrets.PUSH_SECRET }}"
 
+      - name: build sealos cluster image
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: 78
+          repository: labring/cluster-image
+          body: |
+            /imagebuild_apps deepflow ${{ github.ref_name }}
+          token: "${{ secrets.PUSH_SECRET }}"
+
       - name: build kubesphere helm repo
         uses: peter-evans/create-or-update-comment@v1
         with:
