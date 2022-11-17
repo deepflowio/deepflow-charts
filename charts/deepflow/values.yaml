@@ -161,11 +161,6 @@ server:
       targetPort: 20033
       nodePort: "{{ .Values.global.nodePort.deepflowServerIngester }}"
       protocol: TCP
-    - name: ingester-30033-udp
-      port: 30033
-      targetPort: 20033
-      nodePort: "{{ .Values.global.nodePort.deepflowServerIngester }}"
-      protocol: UDP
     ## Additional ports to open for server service
     additionalPorts: []
 
