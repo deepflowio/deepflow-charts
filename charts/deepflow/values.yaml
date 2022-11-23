@@ -40,7 +40,7 @@ global:
     ## External ClickHouse clusterName,The default value is 'default', query method:  'select cluster,host_address,port from system.clusters;'
     clusterName: default 
 
-    ## External ClickHouse storage policy name,The default value is 'default', query method: 'select policy_name from storage_policies;'
+    ## External ClickHouse storage policy name,The default value is 'default', query method: 'select policy_name from system.storage_policies;'
     storagePolicy: default 
     username: default ## External ClickHouse username
     password: password ## External ClickHouse Password
