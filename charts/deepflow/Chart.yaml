@@ -3,8 +3,8 @@ description: An automated observability platform for cloud-native developers.
 name: deepflow
 engine: gotpl
 type: application
-version: 0.1.083
-appVersion: "6.1.6"
+version: 0.1.084
+appVersion: "6.1.7"
 kubeVersion: ">=1.16.0-0"
 sources:
   - https://github.com/deepflowys/deepflow
