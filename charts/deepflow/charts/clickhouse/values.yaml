@@ -8,7 +8,9 @@ global:
   podAffinityTermLabelSelector: []
   nodeAffinityLabelSelector: []
   nodeAffinityTermLabelSelector: []
-
+  password:
+    clickhouse:
+    
 replicas: "1"
 hostNetwork: "false"
 dnsPolicy: "ClusterFirst"

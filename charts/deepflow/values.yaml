@@ -14,6 +14,7 @@ global:
   password:
     mysql: deepflow
     #grafana: deepflow 
+    clickhouse:
   podManagementPolicy: "OrderedReady"
   replicas: 1  ## replicas for deepflow-server and clickhouse
   podAntiAffinityLabelSelector: []
@@ -317,7 +318,7 @@ configmap:
         user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
         host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
-        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
+        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
       trisolaris:
         chrony:
           host: "{{ tpl .Values.global.ntpServer . }}"
@@ -332,7 +333,7 @@ configmap:
         user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
         host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
-        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
+        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
         timeout: 60
     ingester:
       ckdb:
@@ -347,7 +348,7 @@ configmap:
       ckdb-auth:
         username: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         # '#','@' special characters are not supported in passwords
-        password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
+        password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
       es-syslog: false
 
   app.yaml:
@@ -839,7 +840,7 @@ grafana:
     MYSQL_PASSWORD:  "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
     CLICKHOUSE_SERVER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
     CLICKHOUSE_USER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
-    CLICKHOUSE_PASSWORD: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{end}}"
+    CLICKHOUSE_PASSWORD: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
 
   ingress:
     enabled: false
