@@ -25,7 +25,8 @@ global:
   nodeAffinityTermLabelSelector: []
   timezone: "Asia/Shanghai"
   nodePort: 
-    #clickhouse: 30900
+    clickhouseTcpPort:
+    clickhouseHttpPort:
     deepflowServerIngester: 30033
     deepflowServerGrpc: 30035
     # deepflowServerSslGrpc: 30135
@@ -456,15 +457,15 @@ clickhouse:
     ##
 
     ports:
-    - name: http-monitor-port
+    - name: http-port
       port: 8123
       targetPort: 8123
-      nodePort:
+      nodePort: "{{ .Values.global.nodePort.clickhouseHttpPort }}"
       protocol: TCP
     - name: tcp-port
       port: 9000
       targetPort: 9000
-      nodePort:
+      nodePort: "{{ .Values.global.nodePort.clickhouseTcpPort }}"
       protocol: TCP
     - name: interserver-http-port
       port: 9009

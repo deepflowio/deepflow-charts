@@ -10,7 +10,7 @@ global:
   nodeAffinityTermLabelSelector: []
   password:
     clickhouse:
-    
+
 replicas: "1"
 hostNetwork: "false"
 dnsPolicy: "ClusterFirst"
@@ -99,7 +99,7 @@ service:
   ##
 
   ports:
-    - name: http-monitor-port
+    - name: http-port
       port: 8123
       targetPort: 8123
       nodePort:
