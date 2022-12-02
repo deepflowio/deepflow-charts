@@ -550,7 +550,7 @@ data:
                           <host>{{ include "clickhouse.fullname" $ }}-{{$i}}.{{ include "clickhouse.fullname" $ }}-headless</host>
                           <port>9000</port>
                           <user>default</user>
-                          <password>{{ .Values.global.password.clickhouse }}</password>
+                          <password>{{ $Values.global.password.clickhouse }}</password>
                      </replica>
                 </shard>
             {{- end }}
