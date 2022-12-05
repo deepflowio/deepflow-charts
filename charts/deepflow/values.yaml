@@ -663,7 +663,7 @@ deepflow-agent:
   hostNetwork: "true"
   ## Mount the netns hostPath directory read-only 
   netns:
-    mount: true
+    mount: false
   extraVolumeMounts: []
   securityContext: 
     # privileged: true

@@ -29,7 +29,7 @@ hostNetwork: "true"
 
 ## Mount the netns hostPath directory read-only 
 netns:
-  mount: true
+  mount: false
   
 securityContext: 
   # privileged: true
