@@ -13,7 +13,7 @@ data:
     default-authentication-plugin=mysql_native_password
 
     # Network related
-    bind-address=0.0.0.0
+    bind-address=*
     port=30130
 
     # Enable query cache
