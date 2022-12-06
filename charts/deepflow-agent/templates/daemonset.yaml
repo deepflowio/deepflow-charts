@@ -95,6 +95,7 @@ spec:
             - name: netns # required to access net namespace info
               mountPath: /var/run/netns
               readOnly: true
+              mountPropagation: HostToContainer
            {{- end }}
           {{- range .Values.extraVolumeMounts }}
             - name: {{ .name }}
