@@ -119,6 +119,13 @@ jobs:
       - name: Log in to ALIYUN Docker Registry
         uses: docker/login-action@v2
         with:
+          registry: "registry.cn-hongkong.aliyuncs.com"
+          username: "${{ secrets.REGISTRY_ALIYUN_USER }}"
+          password: "${{ secrets.REGISTRY_PASS }}"
+
+      - name: Log in to ALIYUN Docker Registry
+        uses: docker/login-action@v2
+        with:
           registry: "registry.cn-beijing.aliyuncs.com"
           username: "${{ secrets.REGISTRY_ALIYUN_USER }}"
           password: "${{ secrets.REGISTRY_PASS }}"
@@ -147,9 +154,11 @@ jobs:
               echo $SORTIMAGE
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE "
               skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
+              skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE       
               skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE 
             done
 
