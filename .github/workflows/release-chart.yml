@@ -147,9 +147,11 @@ jobs:
               echo $SORTIMAGE
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE "
               skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
+              skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE       
               skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE 
             done
 
