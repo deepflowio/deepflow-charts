@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'feature-**'
     paths:
       - 'charts/**'
     tags:
@@ -162,10 +163,10 @@ jobs:
               skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE 
             done
 
-  release_chart:
-    name: release chart
+  release_stable_chart:
+    name: release stable chart
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/v') && !startsWith(github.ref, 'refs/tags/v6.1.8.') #### to stable
     steps:
       - name: Checkout
         uses: actions/checkout@v3
