@@ -47,6 +47,9 @@ jobs:
           rm -rf .cr-release-packages/
           mkdir -p .cr-release-packages/
           cd .cr-release-packages/
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+          helm dependency build ../charts/deepflow
           helm package ../charts/*
           curl -o index.current https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/latest/v6.1/index.yaml||true
           helm repo index . --url https://deepflowys.github.io/deepflow-charts/v6.1/ --merge index.current
@@ -54,14 +57,10 @@ jobs:
 
           git checkout -b gh-pages origin/gh-pages
           mkdir -p v6.1/
-          cp -raf .cr-release-packages/index.yaml ./v6.1/index.yaml
+          cp -raf .cr-release-packages/* ./v6.1/
           git config --global user.name "action"
           git config --global user.email "$action@users.noreply.github.com"
-          git add ./v6.1/index.yaml
-          for file in $(ls  .cr-release-packages/deepflow-*.tgz)
-            do 
-               git add $file
-            done
+          git add ./v6.1
           git commit -am "update charts"
           git push 
           cd .cr-release-packages/

@@ -14,7 +14,7 @@ image:
   repository: deepflowce/deepflow-agent
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: latest
+  tag: v6.1
 
 imagePullSecrets: []
 nameOverride: ""
