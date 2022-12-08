@@ -812,7 +812,7 @@ grafana:
       - name: custom-plugins
         mountPath: /var/lib/grafana/plugins
     - name: init-grafana-ds-dh
-      image: "{{ .Values.global.image.repository }}/deepflow-init-grafana-ds-dh:latest"
+      image: "{{ .Values.global.image.repository }}/deepflow-init-grafana-ds-dh:v6.1"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: deepflow-dashboards
