@@ -45,12 +45,16 @@ jobs:
           delete_release: true # default: true
           delete_draft_release: true # default: false; only applicable if delete_release == true
           tag_name: deepflow-agent-6.1.8
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
       - uses: dev-drprasad/delete-tag-and-release@v0.2.0
         with:
           delete_release: true # default: true
           delete_draft_release: true # default: false; only applicable if delete_release == true
           tag_name: deepflow-6.1.8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.4.0
@@ -237,57 +241,3 @@ jobs:
         run: |
           ossutil cp -rf  oss://deepflow-ce/chart/latest/index.yaml oss://deepflow-ce/chart/stable/
 
-  release_lts_chart:
-    name: release lts chart
-    runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/v6.1.8') || startsWith(github.ref, 'refs/tags/v6.1.8.')" #### to lts
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: 'gh-pages'
-      - name: push to deepflow repo
-        run: |
-          gh repo clone deepflowys/deepflow
-          cd deepflow/
-          git checkout -b gh-pages origin/gh-pages
-          cp -raf ../index.yaml ./index.yaml
-          git config --global user.name "action"
-          git config --global user.email "$action@users.noreply.github.com"
-          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow
-          git add index.yaml
-          git commit -am "update charts"
-          git push 
-        env:
-          GH_TOKEN: ${{ secrets.PUSH_SECRET }}
-
-
-
-
-      - name: build sealos cluster image
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: 78
-          repository: labring/cluster-image
-          body: |
-            /imagebuild_apps deepflow stable
-          token: "${{ secrets.PUSH_SECRET }}"
-
-      - name: build sealos cluster image
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: 78
-          repository: labring/cluster-image
-          body: |
-            /imagebuild_apps deepflow ${{ github.ref_name }}
-          token: "${{ secrets.PUSH_SECRET }}"
-
-      - name: build kubesphere helm repo
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: 266
-          repository: kubesphere/helm-charts
-          body: |
-            /build-latest-app
-          token: "${{ secrets.PUSH_SECRET }}"
