@@ -21,7 +21,7 @@ jobs:
     # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
     # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
     runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/')"
+    if: "startsWith(github.ref, 'refs/tags/v6.1.8') || startsWith(github.ref, 'refs/tags/v6.1.8.')" #### to lts
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -31,43 +31,59 @@ jobs:
       - name: Copy DeepFlow Agent chart
         run: |
           cp -rf charts/deepflow-agent charts/deepflow/charts/
-
       - name: Configure Git
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
       - name: Install Helm
         uses: azure/setup-helm@v1
         with:
           version: v3.9.0
 
-      - name: helm index
-        run: |
-          rm -rf .cr-release-packages/
-          mkdir -p .cr-release-packages/
-          cd .cr-release-packages/
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo update
-          helm dependency build ../charts/deepflow
-          helm package ../charts/*
-          curl -o index.current https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/latest/v6.1/index.yaml||true
-          helm repo index . --url https://deepflowys.github.io/deepflow-charts/v6.1/ --merge index.current
-          cd ..
+      - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        with:
+          delete_release: true # default: true
+          delete_draft_release: true # default: false; only applicable if delete_release == true
+          tag_name: deepflow-agent-6.1.8
 
+      - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        with:
+          delete_release: true # default: true
+          delete_draft_release: true # default: false; only applicable if delete_release == true
+          tag_name: deepflow-6.1.8
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.4.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: push to deepflow repo
+        run: |
+          rm -rf index.current
+          curl -o index.current https://deepflowys.github.io/deepflow/index.yaml||true
+          mkdir -p .cr-release-packages-agent
+          mv .cr-release-packages/deepflow-agent*.tgz .cr-release-packages-agent/
+          helm repo index .cr-release-packages/ --url https://github.com/deepflowys/deepflow-charts/releases/download/deepflow-6.1.8/ --merge index.current
+          helm repo index .cr-release-packages-agent/ --url https://github.com/deepflowys/deepflow-charts/releases/download/deepflow-agent-6.1.8/ --merge .cr-release-packages/index.yaml
+          gh repo clone deepflowys/deepflow
+          cd deepflow/
           git checkout -b gh-pages origin/gh-pages
-          mkdir -p v6.1/
-          cp -raf .cr-release-packages/* ./v6.1/
+          cp -raf ../.cr-release-packages/index.yaml ./index.yaml
           git config --global user.name "action"
           git config --global user.email "$action@users.noreply.github.com"
-          git add ./v6.1
+          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow/
+          git add ./index.yaml
           git commit -am "update charts"
           git push 
-          cd .cr-release-packages/
-          rm -rf index.yaml
-          helm repo index . --url https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/latest/v6.1/ --merge index.current
         env:
           GH_TOKEN: ${{ secrets.PUSH_SECRET }}
+
+
+      - name: helm index
+        run: |
+          rm -rf index.current
+          curl -o index.current https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/stable/index.yaml||true
+          helm repo index .cr-release-packages/ --url https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/stable/ --merge index.current
 
       - uses: manyuanrong/setup-ossutil@v2.0
         with:
@@ -77,10 +93,10 @@ jobs:
 
       - name: upload chart index
         run: |
-          ossutil cp -rf .cr-release-packages/index.yaml oss://deepflow-ce/chart/latest/v6.1/
+          ossutil cp -rf .cr-release-packages/index.yaml oss://deepflow-ce/chart/stable/
           for file in $(ls  .cr-release-packages/deepflow-*.tgz)
             do 
-               ossutil cp -rf $file oss://deepflow-ce/chart/latest/v6.1/
+               ossutil cp -rf $file oss://deepflow-ce/chart/latest/
             done
 
   sync_image:
@@ -149,12 +165,12 @@ jobs:
 
       - name: add deepflow helm repo
         run: |
-          helm repo add deepflow https://deepflowys.github.io/deepflow-charts/v6.1/
+          helm repo add deepflow https://deepflowys.github.io/deepflow-charts/
           helm repo update 
 
       - name: install deepflow 
         run: |
-          helm upgrade --install deepflow -n deepflow deepflow/deepflow --create-namespace \
+          helm upgrade --install deepflow -n deepflow deepflow/deepflow --create-namespace --version 6.1.8 \
               -f test-values.yaml
 
       - name: install skopeo
@@ -182,6 +198,8 @@ jobs:
   release_chart:
     name: release chart
     runs-on: ubuntu-latest
+    needs: 
+    - release
     if: "startsWith(github.ref, 'refs/tags/v6.1.8') || startsWith(github.ref, 'refs/tags/v6.1.8.')" #### to lts
     steps:
       - name: Checkout
@@ -189,13 +207,17 @@ jobs:
         with:
           fetch-depth: 0
           ref: 'gh-pages'
+
       - name: push to deepflow repo
         run: |
           gh repo clone deepflowys/deepflow
           cd deepflow/
           git checkout -b gh-pages origin/gh-pages
-          mkdir -p v6.1
-          cp -raf ../index.yaml ./v6.1/index.yaml
+
+          curl -o index.current https://deepflowys.github.io/deepflow/index.yaml||true
+          helm repo index .cr-release-packages/ --url https://deepflowys.github.io/deepflow/ --merge index.current
+
+          cp -raf ../index.yaml ./index.yaml
           git config --global user.name "action"
           git config --global user.email "$action@users.noreply.github.com"
           git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow/
@@ -213,4 +235,59 @@ jobs:
 
       - name: upload chart index
         run: |
-          ossutil cp -rf  oss://deepflow-ce/chart/latest/v6.1/index.yaml oss://deepflow-ce/chart/lts/v6.1/
+          ossutil cp -rf  oss://deepflow-ce/chart/latest/index.yaml oss://deepflow-ce/chart/stable/
+
+  release_lts_chart:
+    name: release lts chart
+    runs-on: ubuntu-latest
+    if: "startsWith(github.ref, 'refs/tags/v6.1.8') || startsWith(github.ref, 'refs/tags/v6.1.8.')" #### to lts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: 'gh-pages'
+      - name: push to deepflow repo
+        run: |
+          gh repo clone deepflowys/deepflow
+          cd deepflow/
+          git checkout -b gh-pages origin/gh-pages
+          cp -raf ../index.yaml ./index.yaml
+          git config --global user.name "action"
+          git config --global user.email "$action@users.noreply.github.com"
+          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow
+          git add index.yaml
+          git commit -am "update charts"
+          git push 
+        env:
+          GH_TOKEN: ${{ secrets.PUSH_SECRET }}
+
+
+
+
+      - name: build sealos cluster image
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: 78
+          repository: labring/cluster-image
+          body: |
+            /imagebuild_apps deepflow stable
+          token: "${{ secrets.PUSH_SECRET }}"
+
+      - name: build sealos cluster image
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: 78
+          repository: labring/cluster-image
+          body: |
+            /imagebuild_apps deepflow ${{ github.ref_name }}
+          token: "${{ secrets.PUSH_SECRET }}"
+
+      - name: build kubesphere helm repo
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: 266
+          repository: kubesphere/helm-charts
+          body: |
+            /build-latest-app
+          token: "${{ secrets.PUSH_SECRET }}"
