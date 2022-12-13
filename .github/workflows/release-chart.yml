@@ -61,6 +61,26 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
+      - name: helm index
+        run: |
+          rm -rf index.current
+          curl -o index.current https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/stable/index.yaml||true
+          helm repo index .cr-release-packages/ --url https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/latest/ --merge index.current
+
+      - uses: manyuanrong/setup-ossutil@v2.0
+        with:
+          endpoint: "oss-accelerate.aliyuncs.com"
+          access-key-id: "${{ secrets.ALIYUN_OSS_ACCESS_KEY }}"
+          access-key-secret: "${{ secrets.ALIYUN_OSS_SECRETS_KEY }}"
+
+      - name: upload chart index
+        run: |
+          ossutil cp -rf .cr-release-packages/index.yaml oss://deepflow-ce/chart/stable/
+          for file in $(ls  .cr-release-packages/deepflow-*.tgz)
+            do 
+               ossutil cp -rf $file oss://deepflow-ce/chart/latest/
+            done
+            
       - name: push to deepflow repo
         run: |
           rm -rf index.current
@@ -81,27 +101,6 @@ jobs:
           git push 
         env:
           GH_TOKEN: ${{ secrets.PUSH_SECRET }}
-
-
-      - name: helm index
-        run: |
-          rm -rf index.current
-          curl -o index.current https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/stable/index.yaml||true
-          helm repo index .cr-release-packages/ --url https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/stable/ --merge index.current
-
-      - uses: manyuanrong/setup-ossutil@v2.0
-        with:
-          endpoint: "oss-accelerate.aliyuncs.com"
-          access-key-id: "${{ secrets.ALIYUN_OSS_ACCESS_KEY }}"
-          access-key-secret: "${{ secrets.ALIYUN_OSS_SECRETS_KEY }}"
-
-      - name: upload chart index
-        run: |
-          ossutil cp -rf .cr-release-packages/index.yaml oss://deepflow-ce/chart/stable/
-          for file in $(ls  .cr-release-packages/deepflow-*.tgz)
-            do 
-               ossutil cp -rf $file oss://deepflow-ce/chart/latest/
-            done
 
   sync_image:
     name: sync image
