@@ -38,7 +38,7 @@ jobs:
           tag_name: deepflow-6.1.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -84,6 +84,7 @@ jobs:
       - name: push to deepflow repo
         run: |
           rm -rf index.current
+          rm -rf cr-release-packages/index.yaml
           curl -o index.current https://deepflowys.github.io/deepflow/index.yaml||true
           mkdir -p .cr-release-packages-agent
           mv .cr-release-packages/deepflow-agent*.tgz .cr-release-packages-agent/
@@ -92,7 +93,7 @@ jobs:
           gh repo clone deepflowys/deepflow
           cd deepflow/
           git checkout -b gh-pages origin/gh-pages
-          cp -raf ../.cr-release-packages/index.yaml ./index.yaml
+          cp -raf ../.cr-release-packages-agent/index.yaml ./index.yaml
           git config --global user.name "action"
           git config --global user.email "$action@users.noreply.github.com"
           git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow/
