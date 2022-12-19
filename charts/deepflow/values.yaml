@@ -336,6 +336,9 @@ configmap:
         host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
         user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
         timeout: 60
+      deepflow-app:
+        host: "{{ $.Release.Name }}-app"
+        port: 20418
     ingester:
       ckdb:
         # use internal or external ckdb
