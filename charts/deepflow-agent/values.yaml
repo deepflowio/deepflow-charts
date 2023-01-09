@@ -101,7 +101,7 @@ deepflowAgentConfig:
     {{- if .Values.agentGroupID }}{{ nindent 4 "vtap-group-id-request:" }} {{ .Values.agentGroupID }}{{ end -}}
     {{- if .Values.deepflowK8sClusterID }}{{ nindent 4 "kubernetes-cluster-id:" }} {{ .Values.deepflowK8sClusterID }}{{ end -}}
     {{- if .Values.controllerPort }}{{ nindent 4 "controller-port:" }} {{ .Values.controllerPort }}{{ end -}}
-    {{- if .Values.clusterNAME }}{{ nindent 4 "kubernetes-cluster-name::" }} {{ .Values.clusterNAME }}{{ end -}}
+    {{- if .Values.clusterNAME }}{{ nindent 4 "kubernetes-cluster-name:" }} {{ .Values.clusterNAME }}{{ end -}}
 
 resources:
   limits:
