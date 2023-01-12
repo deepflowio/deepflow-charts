@@ -1,11 +1,12 @@
-{{- if eq ( tpl $.Values.deployMode . ) "container" }}
+{{- if eq ( tpl $.Values.deployMode . ) "process" }}
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
-  name: {{ include "deepflow-agent.fullname" . }}
+  name: {{ include "deepflow-agent.fullname" . }}-watcher
   labels:
     {{- include "deepflow-agent.labels" . | nindent 4 }}
 spec:
+  replicas: 1
   selector:
     matchLabels:
       {{- include "deepflow-agent.selectorLabels" . | nindent 6 }}
@@ -24,9 +25,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      dnsPolicy: ClusterFirstWithHostNet
-      hostNetwork: {{ tpl .Values.hostNetwork . }}
-      hostPID: true
+      dnsPolicy: ClusterFirst
       imagePullSecrets:
       {{- with .Values.global.imagePullSecrets }}
         {{- toYaml . | nindent 8 }}
@@ -35,22 +34,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "deepflow-agent.fullname" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.sysctlInitContainer.enabled }}
-      initContainers:
-      - name: configure-sysctl
-        securityContext:
-          runAsUser: 0
-          privileged: true
-        image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
-        imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
-        command: ["sysctl", "-w", "net.core.bpf_jit_enable=1"]
-      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
           imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
           ports:
@@ -84,51 +69,17 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
+          - name: ONLY_WATCH_K8S_RESOURCE
+            value: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: sys-kernel-debug
-              mountPath: /sys/kernel/debug
-              readOnly: true
             - name: deepflow-agent-conf
               mountPath: /etc/deepflow-agent
-            {{- if .Values.netns.mount }}
-            - name: netns # required to access net namespace info
-              mountPath: /var/run/netns
-              readOnly: true
-              mountPropagation: HostToContainer
-           {{- end }}
-          {{- range .Values.extraVolumeMounts }}
-            - name: {{ .name }}
-              mountPath: {{ .mountPath }}
-              subPath: {{ .subPath | default "" }}
-              readOnly: {{ .readOnly }}
-          {{- end }}
       volumes:
-        {{- if .Values.netns.mount }}
-        - name: netns
-          hostPath:
-            path: /var/run/netns
-            type: DirectoryOrCreate
-        {{- end }}
-        - name: sys-kernel-debug
-          hostPath:
-            path: /sys/kernel/debug
         - name: deepflow-agent-conf
           configMap:
             name: {{ include "deepflow-agent.fullname" . }}
-      {{- range .Values.extraVolumeMounts }}
-        - name: {{ .name }}
-          {{- if .existingClaim }}
-          persistentVolumeClaim:
-            claimName: {{ .existingClaim }}
-          {{- else if .hostPath }}
-          hostPath:
-            path: {{ .hostPath }}
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

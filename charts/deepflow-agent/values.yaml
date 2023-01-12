@@ -9,6 +9,7 @@ global:
   nodeAffinityLabelSelector: []
   nodeAffinityTermLabelSelector: []
 
+deployMode: container  # process/container
 
 image:
   repository: deepflowce/deepflow-agent
