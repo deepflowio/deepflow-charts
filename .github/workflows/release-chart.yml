@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     steps:
-      - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      - uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
           delete_release: true # default: true
           delete_draft_release: true # default: false; only applicable if delete_release == true
@@ -31,7 +31,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      - uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
           delete_release: true # default: true
           delete_draft_release: true # default: false; only applicable if delete_release == true
@@ -85,18 +85,18 @@ jobs:
         run: |
           rm -rf index.current
           rm -rf cr-release-packages/index.yaml
-          curl -o index.current https://deepflowys.github.io/deepflow/index.yaml||true
+          curl -o index.current https://deepflowio.github.io/deepflow/index.yaml||true
           mkdir -p .cr-release-packages-agent
           mv .cr-release-packages/deepflow-agent*.tgz .cr-release-packages-agent/
-          helm repo index .cr-release-packages/ --url https://github.com/deepflowys/deepflow-charts/releases/download/deepflow-6.1.8/ --merge index.current
-          helm repo index .cr-release-packages-agent/ --url https://github.com/deepflowys/deepflow-charts/releases/download/deepflow-agent-6.1.8/ --merge .cr-release-packages/index.yaml
-          gh repo clone deepflowys/deepflow
+          helm repo index .cr-release-packages/ --url https://github.com/deepflowio/deepflow-charts/releases/download/deepflow-6.1.8/ --merge index.current
+          helm repo index .cr-release-packages-agent/ --url https://github.com/deepflowio/deepflow-charts/releases/download/deepflow-agent-6.1.8/ --merge .cr-release-packages/index.yaml
+          gh repo clone deepflowio/deepflow
           cd deepflow/
           git checkout -b gh-pages origin/gh-pages
           cp -raf ../.cr-release-packages-agent/index.yaml ./index.yaml
           git config --global user.name "action"
           git config --global user.email "$action@users.noreply.github.com"
-          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow/
+          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowio/deepflow/
           git add ./index.yaml
           git commit -am "update charts"
           git push 
@@ -169,7 +169,7 @@ jobs:
 
       - name: add deepflow helm repo
         run: |
-          helm repo add deepflow https://deepflowys.github.io/deepflow-charts/
+          helm repo add deepflow https://deepflowio.github.io/deepflow-charts/
           helm repo update 
 
       - name: install deepflow 
@@ -192,9 +192,9 @@ jobs:
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE"
-              echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE "
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE "
               skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE       
-              skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE 
+              skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE 
             done
