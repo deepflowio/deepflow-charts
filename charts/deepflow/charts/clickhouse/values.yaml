@@ -30,6 +30,8 @@ podAnnotations: {}
 podSecurityContext: {}
   # fsGroup: 2000
 
+chmodContainer: 
+  enabled: true
 securityContext: {}
   # capabilities:
   #   drop:

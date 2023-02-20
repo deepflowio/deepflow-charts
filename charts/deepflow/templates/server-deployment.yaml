@@ -28,7 +28,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      hostNetwork: {{ tpl .Values.server.hostNetwork . }}
+      hostNetwork: {{ tpl (toString .Values.server.hostNetwork) . }}
       dnsPolicy: {{ tpl .Values.server.dnsPolicy . }}
       imagePullSecrets:
       {{- with .Values.global.imagePullSecrets }}

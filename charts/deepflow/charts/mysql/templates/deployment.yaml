@@ -28,7 +28,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      hostNetwork: {{ tpl .Values.hostNetwork . }}
+      hostNetwork: {{ tpl (toString .Values.hostNetwork) . }}
       dnsPolicy: {{ tpl .Values.dnsPolicy . }}
       imagePullSecrets:
       {{- with .Values.global.imagePullSecrets }}
@@ -40,6 +40,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if and (eq ( tpl $.Values.storageConfig.generateType . ) "hostPath") ($.Values.storageConfig.hostPathChownContainerEnabled) }}
+      {{- if .Values.chmodContainer.enabled }}
       initContainers:
       - name: hostpath-chown
         image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
@@ -53,6 +54,7 @@ spec:
         volumeMounts:
           - mountPath: /var/lib/mysql
             name: data-path
+      {{- end }}
       {{- end }}
       containers:
         - name: mysql
