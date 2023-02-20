@@ -9,7 +9,7 @@ global:
     repository: deepflowce
     pullPolicy: Always
     imagePullSecrets: []
-  hostNetwork: false
+  hostNetwork: true
   dnsPolicy: ClusterFirst
   password:
     mysql: deepflow
