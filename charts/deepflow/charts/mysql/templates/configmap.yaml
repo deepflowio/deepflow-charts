@@ -23,6 +23,9 @@ data:
 
     # Replication related
     slave_skip_errors=all
+
+    ## Binlog expiration time, default 1 days
+    binlog_expire_logs_seconds = 86400
   init.sql: |-
     ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ tpl $.Values.password . }}';
     CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED WITH mysql_native_password BY '{{ tpl $.Values.password . }}';

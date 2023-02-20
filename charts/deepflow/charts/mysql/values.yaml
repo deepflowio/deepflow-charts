@@ -45,6 +45,8 @@ livenessProbe:
     port: tcp
   timeoutSeconds: 1
 
+chmodContainer:
+  enabled: true
 securityContext: {}
 storageConfig:
   generateType: "{{ if $.Values.global.allInOneLocalStorage }}hostPath{{ else }}{{$.Values.storageConfig.type}}{{end}}" #Please ignore this

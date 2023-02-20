@@ -133,7 +133,7 @@ jobs:
 
       - name: add deepflow helm repo
         run: |
-          helm repo add deepflow https://deepflowys.github.io/deepflow-charts/
+          helm repo add deepflow https://deepflowio.github.io/deepflow-charts/
           helm repo update 
 
       - name: install deepflow 
@@ -156,11 +156,11 @@ jobs:
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE"
-              echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE "
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE "
               skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
               skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE       
-              skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowys/deepflow-ce/$SORTIMAGE 
+              skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE 
             done
 
   release_stable_chart:
@@ -175,13 +175,13 @@ jobs:
           ref: 'gh-pages'
       - name: push to deepflow repo
         run: |
-          gh repo clone deepflowys/deepflow
+          gh repo clone deepflowio/deepflow
           cd deepflow/
           git checkout -b gh-pages origin/gh-pages
           cp -raf ../index.yaml ./index.yaml
           git config --global user.name "action"
           git config --global user.email "$action@users.noreply.github.com"
-          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowys/deepflow
+          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowio/deepflow
           git add index.yaml
           git commit -am "update charts"
           git push 
