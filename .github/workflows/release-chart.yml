@@ -166,7 +166,7 @@ jobs:
   release_stable_chart:
     name: release stable chart
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') && !startsWith(github.ref, 'refs/tags/v6.1.8.') #### to stable
+    if: startsWith(github.ref, 'refs/tags/v')  #### to stable
     steps:
       - name: Checkout
         uses: actions/checkout@v3
