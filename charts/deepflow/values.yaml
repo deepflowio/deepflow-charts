@@ -805,17 +805,17 @@ grafana:
       user: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.username}}{{ else }}root{{end}}"
       password: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
     plugins:
-      allow_loading_unsigned_plugins: deepflow-querier-datasource,deepflow-apptracing-panel,deepflow-topo-panel
+      allow_loading_unsigned_plugins: deepflow-querier-datasource,deepflow-apptracing-panel,deepflow-topo-panel,deepflowio-tracing-panel,deepflowio-deepflow-datasource,deepflowio-topo-panel
 
   extraInitContainers:
     - name: init-custom-plugins
-      image: "{{ .Values.global.image.repository }}/deepflow-init-grafana:v6.2.4"
+      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.2.4"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: custom-plugins
         mountPath: /var/lib/grafana/plugins
     - name: init-grafana-ds-dh
-      image: "{{ .Values.global.image.repository }}/deepflow-init-grafana-ds-dh:latest"
+      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana-ds-dh:latest"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: deepflow-dashboards
