@@ -224,3 +224,12 @@ jobs:
           body: |
             /build-latest-app
           token: "${{ secrets.PUSH_SECRET }}"
+
+      - name: Invoke workflow in another repo with inputs
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Release Charts
+          repo: deepflowio/deepflow-charts
+          token: ${{ secrets.PUSH_SECRET }}
+          ref: 'v6.1'
+          inputs: '{ "ref": "${{ github.event.pull_request.head.ref }}"}'
