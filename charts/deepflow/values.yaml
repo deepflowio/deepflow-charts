@@ -133,6 +133,11 @@ server:
       targetPort: 20416
       nodePort:
       protocol: TCP
+    - name: profile
+      port: 20419
+      targetPort: 20419
+      nodePort:
+      protocol: TCP
     - name: health-check
       port: 20417
       targetPort: 20417
