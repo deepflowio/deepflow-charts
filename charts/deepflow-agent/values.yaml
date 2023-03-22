@@ -48,6 +48,9 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
+
+timeZone: Asia/Shanghai
+
 ## File read and write permissions required for collecting eBPF data (Optional. If you do not have the permission and the content does not meet expectations, the performance will be significantly reduced. You can set the content in advance.)
 ## sysctl -w net.core.bpf_jit_enable=1
 sysctlInitContainer:
