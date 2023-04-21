@@ -69,7 +69,7 @@ spec:
           #   periodSeconds: 10
           env:
           - name: TZ
-            value: {{ tpl .Values.timeZone . }}
+            value: {{ tpl .Values.timezone . }}
           - name: K8S_NODE_IP_FOR_DEEPFLOW
             valueFrom:
               fieldRef:
