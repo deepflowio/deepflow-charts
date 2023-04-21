@@ -15,7 +15,7 @@ image:
   repository: deepflowce/deepflow-agent
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: v6.2.6
+  tag: v6.2.6.2
 
 imagePullSecrets: []
 nameOverride: ""
@@ -49,7 +49,8 @@ securityContext:
   # runAsUser: 1000
 
 
-timeZone: Asia/Shanghai
+timeZone: "{{ .Values.timezone }}"
+timezone: "Asia/Shanghai"
 
 ## File read and write permissions required for collecting eBPF data (Optional. If you do not have the permission and the content does not meet expectations, the performance will be significantly reduced. You can set the content in advance.)
 ## sysctl -w net.core.bpf_jit_enable=1
