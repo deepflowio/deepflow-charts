@@ -233,3 +233,12 @@ jobs:
           token: ${{ secrets.PUSH_SECRET }}
           ref: 'v6.1'
           inputs: '{ "ref": "Release"}'
+
+      - name: Invoke workflow in another repo with inputs
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Release Charts
+          repo: deepflowio/deepflow-charts
+          token: ${{ secrets.PUSH_SECRET }}
+          ref: 'v6.2'
+          inputs: '{ "ref": "Release"}'
