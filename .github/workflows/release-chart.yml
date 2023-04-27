@@ -3,8 +3,7 @@ name: Release Charts
 on:
   push:
     branches:
-      - main
-      - 'feature-**'
+      - v6.2
     paths:
       - 'charts/**'
     tags:
@@ -24,6 +23,22 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     steps:
+      - uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        with:
+          delete_release: true # default: true
+          delete_draft_release: true # default: false; only applicable if delete_release == true
+          tag_name: deepflow-agent-6.2.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        with:
+          delete_release: true # default: true
+          delete_draft_release: true # default: false; only applicable if delete_release == true
+          tag_name: deepflow-6.2.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -32,12 +47,10 @@ jobs:
       - name: Copy DeepFlow Agent chart
         run: |
           cp -rf charts/deepflow-agent charts/deepflow/charts/
-
       - name: Configure Git
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
       - name: Install Helm
         uses: azure/setup-helm@v1
         with:
@@ -50,7 +63,8 @@ jobs:
 
       - name: helm index
         run: |
-          curl -o index.current https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/latest/index.yaml||true
+          rm -rf index.current
+          curl -o index.current https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/stable/index.yaml||true
           helm repo index .cr-release-packages/ --url https://deepflow-ce.oss-cn-beijing.aliyuncs.com/chart/latest/ --merge index.current
 
       - uses: manyuanrong/setup-ossutil@v2.0
@@ -61,11 +75,33 @@ jobs:
 
       - name: upload chart index
         run: |
-          ossutil cp -rf .cr-release-packages/index.yaml oss://deepflow-ce/chart/latest/
+          ossutil cp -rf .cr-release-packages/index.yaml oss://deepflow-ce/chart/stable/
           for file in $(ls  .cr-release-packages/deepflow-*.tgz)
             do 
                ossutil cp -rf $file oss://deepflow-ce/chart/latest/
             done
+            
+      - name: push to deepflow repo
+        run: |
+          git clone https://github.com/deepflowio/deepflow.git -b gh-pages
+          mkdir -p .cr-release-packages-agent
+          mkdir -p  .cr-release-packages
+          mv .cr-release-packages/deepflow-agent*.tgz .cr-release-packages-agent/
+          helm repo index .cr-release-packages/ --url https://github.com/deepflowio/deepflow-charts/releases/download/deepflow-6.2.6/ --merge  deepflow/index.yaml
+          helm repo index .cr-release-packages-agent/ --url https://github.com/deepflowio/deepflow-charts/releases/download/deepflow-agent-6.2.6/ --merge .cr-release-packages/index.yaml
+          rm -rf deepflow
+          gh repo clone deepflowio/deepflow
+          cd deepflow/
+          git checkout -b gh-pages origin/gh-pages
+          cp -raf ../.cr-release-packages-agent/index.yaml ./index.yaml
+          git config --global user.name "action"
+          git config --global user.email "$action@users.noreply.github.com"
+          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowio/deepflow/
+          git add ./index.yaml
+          git commit -am "update charts"
+          git push 
+        env:
+          GH_TOKEN: ${{ secrets.PUSH_SECRET }}
 
   sync_image:
     name: sync image
@@ -138,7 +174,7 @@ jobs:
 
       - name: install deepflow 
         run: |
-          helm upgrade --install deepflow -n deepflow deepflow/deepflow --create-namespace \
+          helm upgrade --install deepflow -n deepflow deepflow/deepflow --create-namespace --version 6.2.6 \
               -f test-values.yaml
 
       - name: install skopeo
@@ -162,74 +198,3 @@ jobs:
               skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE       
               skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE 
             done
-
-  release_stable_chart:
-    name: release stable chart
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')  #### to stable
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: 'gh-pages'
-      - name: push to deepflow repo
-        run: |
-          gh repo clone deepflowio/deepflow
-          cd deepflow/
-          git checkout -b gh-pages origin/gh-pages
-          cp -raf ../index.yaml ./index.yaml
-          git config --global user.name "action"
-          git config --global user.email "$action@users.noreply.github.com"
-          git remote set-url --push origin https://action:${{ secrets.PUSH_SECRET }}@github.com/deepflowio/deepflow
-          git add index.yaml
-          git commit -am "update charts"
-          git push 
-        env:
-          GH_TOKEN: ${{ secrets.PUSH_SECRET }}
-
-      - uses: manyuanrong/setup-ossutil@v2.0
-        with:
-          endpoint: "oss-accelerate.aliyuncs.com"
-          access-key-id: "${{ secrets.ALIYUN_OSS_ACCESS_KEY }}"
-          access-key-secret: "${{ secrets.ALIYUN_OSS_SECRETS_KEY }}"
-
-      - name: upload chart index
-        run: |
-          ossutil cp -rf  oss://deepflow-ce/chart/latest/index.yaml oss://deepflow-ce/chart/stable/
-
-      - name: build sealos cluster image
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: 78
-          repository: labring/cluster-image
-          body: |
-            /imagebuild_apps deepflow stable
-          token: "${{ secrets.PUSH_SECRET }}"
-
-      - name: build sealos cluster image
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: 78
-          repository: labring/cluster-image
-          body: |
-            /imagebuild_apps deepflow ${{ github.ref_name }}
-          token: "${{ secrets.PUSH_SECRET }}"
-
-      - name: build kubesphere helm repo
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: 266
-          repository: kubesphere/helm-charts
-          body: |
-            /build-latest-app
-          token: "${{ secrets.PUSH_SECRET }}"
-
-      - name: Invoke workflow in another repo with inputs
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: Release Charts
-          repo: deepflowio/deepflow-charts
-          token: ${{ secrets.PUSH_SECRET }}
-          ref: 'v6.1'
-          inputs: '{ "ref": "Release"}'
