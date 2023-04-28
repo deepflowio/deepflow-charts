@@ -234,6 +234,9 @@ jobs:
           ref: 'v6.1'
           inputs: '{ "ref": "Release"}'
 
+      - name: Install k8s
+        run: |
+          sleep 30
       - name: Invoke workflow in another repo with inputs
         uses: benc-uk/workflow-dispatch@v1
         with:
