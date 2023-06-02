@@ -6,7 +6,7 @@ global:
     ## ghcr Image repository address: ghcr.io/deepflowys/deepflow-ce
     ## Dockerhub Image repository address: deepflowce
     ## AliyunYun Image repository address: registry.cn-beijing.aliyuncs.com/deepflow-ce
-    repository: deepflowce
+    repository: registry.cn-hongkong.aliyuncs.com/deepflow-ce
     pullPolicy: Always
     imagePullSecrets: []
   hostNetwork: false
@@ -778,10 +778,7 @@ grafana:
   defaultDashboardsTimezone: utc
   adminPassword: deepflow
   
-  containerSecurityContext:
-    capabilities:
-      drop:
-      - ALL
+  containerSecurityContext: []
 
   image:
     ## Grafana aliyun Image repository: registry.cn-beijing.aliyuncs.com/deepflow-ce/grafana
