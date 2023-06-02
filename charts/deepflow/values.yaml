@@ -6,7 +6,7 @@ global:
     ## ghcr Image repository address: ghcr.io/deepflowys/deepflow-ce
     ## Dockerhub Image repository address: deepflowce
     ## AliyunYun Image repository address: registry.cn-beijing.aliyuncs.com/deepflow-ce
-    repository: deepflowce
+    repository: registry.cn-hongkong.aliyuncs.com/deepflow-ce
     pullPolicy: Always
     imagePullSecrets: []
   hostNetwork: false
@@ -67,11 +67,11 @@ global:
 image:
   server:
     repository: "{{ .Values.global.image.repository }}/deepflow-server"
-    tag: v6.2.6.5
+    tag: v6.3.0
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
     repository:  "{{ .Values.global.image.repository }}/deepflow-app"
-    tag: v6.2.6.5
+    tag: v6.3.0
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
 
 imagePullSecrets: []
@@ -658,7 +658,7 @@ deepflow-agent:
     repository: "{{ .Values.global.image.repository }}/deepflow-agent"
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v6.2.6.5
+    tag: v6.3.0
 
   imagePullSecrets: []
   nameOverride: ""
@@ -778,10 +778,7 @@ grafana:
   defaultDashboardsTimezone: utc
   adminPassword: deepflow
 
-  containerSecurityContext:
-    capabilities:
-      drop:
-      - ALL
+  containerSecurityContext: []
 
   image:
     ## Grafana aliyun Image repository: registry.cn-beijing.aliyuncs.com/deepflow-ce/grafana
@@ -820,7 +817,7 @@ grafana:
 
   extraInitContainers:
     - name: init-custom-plugins
-      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.2.6.5"
+      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.3.0"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: custom-plugins
