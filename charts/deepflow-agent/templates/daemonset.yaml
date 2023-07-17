@@ -45,7 +45,7 @@ spec:
           privileged: true
         image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
         imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
-        command: ["sysctl", "-w", "net.core.bpf_jit_enable=1"]
+        command: ["/bin/bash", "-c", "sysctl -w net.core.bpf_jit_enable=1 || true"]
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -86,6 +86,11 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
+          - name: K8S_MEM_LIMIT_FOR_DEEPFLOW
+            valueFrom:
+              resourceFieldRef:
+                divisor: 1Mi
+                resource: limits.memory
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
