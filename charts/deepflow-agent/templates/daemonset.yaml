@@ -45,7 +45,7 @@ spec:
           privileged: true
         image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
         imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
-        command: ["sysctl", "-w", "net.core.bpf_jit_enable=1"]
+        command: ["/bin/bash", "-c", "sysctl -w net.core.bpf_jit_enable=1 || true"]
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
