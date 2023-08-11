@@ -15,7 +15,7 @@ image:
   repository: registry.cn-hongkong.aliyuncs.com/deepflow-ce
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: v6.3.3
+  tag: v6.3.5
 
 imagePullSecrets: []
 nameOverride: ""
@@ -26,7 +26,7 @@ podAnnotations: {}
 podLabels: {}
 podSecurityContext: {}
   # fsGroup: 2000
-hostNetwork: "true"
+hostNetwork: "false"
 
 ## Mount the netns hostPath directory read-only 
 netns:

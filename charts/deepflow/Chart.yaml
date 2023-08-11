@@ -3,18 +3,18 @@ description: An automated observability platform for cloud-native developers.
 name: deepflow
 engine: gotpl
 type: application
-version: 6.3.004
-appVersion: "6.3.3"
+version: 6.3.005
+appVersion: "6.3.5"
 kubeVersion: ">=1.16.0-0"
 sources:
-  - https://github.com/deepflowys/deepflow
-home: https://github.com/deepflowys/deepflow
+  - https://github.com/deepflowio/deepflow
+home: https://github.com/deepflowio/deepflow
 keywords:
   - deepflow
-icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.svg
+icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
 maintainers:
   - name: deepflow
-    url: https://github.com/deepflowys/deepflow
+    url: https://github.com/deepflowio/deepflow
 dependencies:
 - name: clickhouse
   repository: ""
