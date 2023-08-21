@@ -10,8 +10,8 @@ global:
   nodeAffinityTermLabelSelector: []
 
 deployComponent: 
-- daemonset  
-# - watcher
+- "daemonset"
+# - "watcher"
 # 
 tke_sidecar: false
 

@@ -1,4 +1,4 @@
-{{- if has "daemonset" ( tpl $.Values.deployComponent . ) }}
+{{- if has "daemonset"  $.Values.deployComponent }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

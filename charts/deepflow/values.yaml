@@ -666,8 +666,8 @@ deepflow-agent:
   timezone: "{{ .Values.global.timezone }}"
 
   deployComponent: 
-  - daemonset  
-  # - watcher
+  - "daemonset"
+  # - "watcher"
   # 
   tke_sidecar: false
 
