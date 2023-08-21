@@ -1,4 +1,4 @@
-{{- if eq ( tpl $.Values.deployMode . ) "container" }}
+{{- if has "daemonset" ( tpl $.Values.deployComponent . ) }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -15,6 +15,9 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/customConfig: {{ sha256sum (print .Values.deepflowAgentConfig) }}
         container.apparmor.security.beta.kubernetes.io/deepflow-agent: unconfined
+        {{- if .Values.tke_sidecar }}
+        eks.tke.cloud.tencent.com/ds-injection: "true"
+        {{- end }}
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -53,6 +56,14 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
           imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
+          {{- if .Values.tke_sidecar }}
+          command: 
+          - /usr/bin/deepflow-agent
+          args:
+          - --sidecar
+          - -f
+          - /etc/deepflow-agent/deepflow-agent.yaml
+          {{- end }}
           ports:
             - name: receive
               containerPort: {{ tpl (toString .Values.externalAgentHttpProxyPort) . }}
@@ -82,10 +93,18 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
+          {{- if .Values.tke_sidecar }}
+          - name: CTRL_NETWORK_INTERFACE
+            value: "eth0"
+          {{- end }}
           - name: K8S_POD_IP_FOR_DEEPFLOW
             valueFrom:
               fieldRef:
+              {{- if .Values.tke_sidecar }}
+                fieldPath: status.hostIP 
+              {{- else }}
                 fieldPath: status.podIP
+              {{- end }}
           - name: K8S_MEM_LIMIT_FOR_DEEPFLOW
             valueFrom:
               resourceFieldRef:

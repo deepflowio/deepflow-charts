@@ -1,4 +1,4 @@
-{{- if eq ( tpl $.Values.deployMode . ) "process" }}
+{{- if has "watcher" ( tpl $.Values.deployComponent . ) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

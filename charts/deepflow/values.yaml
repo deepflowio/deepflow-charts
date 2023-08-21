@@ -665,6 +665,12 @@ deepflow-agent:
   agentFullnameOverride: "deepflow-agent"
   timezone: "{{ .Values.global.timezone }}"
 
+  deployComponent: 
+  - daemonset  
+  # - watcher
+  # 
+  tke_sidecar: false
+
   podAnnotations: {}
   nodeIPInjection: true
   podSecurityContext: {}
@@ -684,6 +690,7 @@ deepflow-agent:
       - NET_ADMIN ## Indicates the permission for collecting AF_PACKET traffic
       - NET_RAW ## Indicates the permission for collecting AF_PACKET traffic
       - IPC_LOCK ## optional MAP_LOCKED MAP_NORESERVE: Indicates the permission for collecting AF_PACKET traffic, It can significantly degrade performance when not available
+      - SYSLOG
       #- BPF      ## Optionally, eBPF does not require SYS_ADMIN in kernel Linux 5.8+ and uses a combination of BPF and PERFMON instead
       #- PERFMON  ## Optionally, eBPF does not require SYS_ADMIN in kernel Linux 5.8+ and uses a combination of BPF and PERFMON instead
     # readOnlyRootFilesystem: true
