@@ -19,7 +19,7 @@ image:
   repository: registry.cn-hongkong.aliyuncs.com/deepflow-ce
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: v6.3.5
+  tag: v6.3.6
 
 imagePullSecrets: []
 nameOverride: ""
