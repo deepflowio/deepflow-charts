@@ -1,4 +1,4 @@
-{{- if has "daemonset"  $.Values.deployComponent }}
+{{- if has "watcher"  $.Values.deployComponent }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
