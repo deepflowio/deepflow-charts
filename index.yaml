@@ -2,6 +2,43 @@ apiVersion: v1
 entries:
   deepflow:
   - apiVersion: v2
+    appVersion: 6.3.7
+    created: "2023-09-01T07:17:33.71619018Z"
+    dependencies:
+    - condition: clickhouse.enabled
+      name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - condition: mysql.enabled
+      name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.*.*
+    description: An automated observability platform for cloud-native developers.
+    digest: 53c5b0dde0bc563f29bab67e61cd70415a03078c9625231a5281f600f1daff89
+    home: https://github.com/deepflowio/deepflow
+    icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - name: deepflow
+      url: https://github.com/deepflowio/deepflow
+    name: deepflow
+    sources:
+    - https://github.com/deepflowio/deepflow
+    type: application
+    urls:
+    - https://github.com/deepflowio/deepflow-charts/releases/download/deepflow-6.3.011/deepflow-6.3.011.tgz
+    version: 6.3.011
+  - apiVersion: v2
     appVersion: 6.3.6
     created: "2023-08-31T08:29:06.725728167Z"
     dependencies:
@@ -3627,6 +3664,26 @@ entries:
     version: 0.1.030
   deepflow-agent:
   - apiVersion: v2
+    appVersion: 6.3.7
+    created: "2023-09-01T07:17:33.867207132Z"
+    description: An automated observability platform for cloud-native developers.
+    digest: 2135c7fc958d25373eb271f5b0cd440163909e06a3ec76fa02a69952bd92a149
+    home: https://github.com/deepflowio/deepflow
+    icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - name: deepflow
+      url: https://github.com/deepflowio/deepflow
+    name: deepflow-agent
+    sources:
+    - https://github.com/deepflowio/deepflow
+    type: application
+    urls:
+    - https://github.com/deepflowio/deepflow-charts/releases/download/deepflow-agent-6.3.011/deepflow-agent-6.3.011.tgz
+    version: 6.3.011
+  - apiVersion: v2
     appVersion: 6.3.6
     created: "2023-08-31T08:29:06.94828107Z"
     description: An automated observability platform for cloud-native developers.
@@ -5583,4 +5640,4 @@ entries:
     urls:
     - https://github.com/deepflowys/deepflow-charts/releases/download/deepflow-agent-0.1.030/deepflow-agent-0.1.030.tgz
     version: 0.1.030
-generated: "2023-08-31T08:29:06.950309793Z"
+generated: "2023-09-01T07:17:33.86969666Z"
