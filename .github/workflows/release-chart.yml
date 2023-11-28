@@ -145,6 +145,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install skopeo
+          skopeo --version
 
       - name: sync image
         run: |
@@ -157,10 +158,10 @@ jobs:
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE"
               echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE "
-              skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
-              skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
-              skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE       
-              skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE 
+              docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
+              docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
+              docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE       
+              docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE 
             done
 
   release_stable_chart:
@@ -244,4 +245,15 @@ jobs:
           repo: deepflowio/deepflow-charts
           token: ${{ secrets.PUSH_SECRET }}
           ref: 'v6.2'
+          inputs: '{ "ref": "Release"}'
+      - name: Install k8s
+        run: |
+          sleep 30
+      - name: Invoke workflow in another repo with inputs
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Release Charts
+          repo: deepflowio/deepflow-charts
+          token: ${{ secrets.PUSH_SECRET }}
+          ref: 'v6.3'
           inputs: '{ "ref": "Release"}'

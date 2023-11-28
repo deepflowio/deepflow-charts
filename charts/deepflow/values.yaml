@@ -67,11 +67,11 @@ global:
 image:
   server:
     repository: "{{ .Values.global.image.repository }}/deepflow-server"
-    tag: v6.3.9
+    tag: v6.4.3
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
     repository:  "{{ .Values.global.image.repository }}/deepflow-app"
-    tag: v6.3.9
+    tag: v6.4.3
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
 
 imagePullSecrets: []
@@ -397,7 +397,7 @@ clickhouse:
     repository: "{{ .Values.global.image.repository }}/clickhouse-server"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 22.8.6.71
+    tag: 23.8.7.24
 
   timezone: "{{ .Values.global.timezone }}"
   imagePullSecrets: []
@@ -658,7 +658,7 @@ deepflow-agent:
     repository: "{{ .Values.global.image.repository }}/deepflow-agent"
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v6.3.9
+    tag: v6.4.3
 
   imagePullSecrets: []
   nameOverride: ""
@@ -788,8 +788,9 @@ grafana:
   containerSecurityContext: []
 
   image:
+    registry: registry.cn-beijing.aliyuncs.com/deepflow-ce
     ## Grafana aliyun Image repository: registry.cn-beijing.aliyuncs.com/deepflow-ce/grafana
-    repository: grafana/grafana
+    repository: grafana
     # Overrides the Grafana image tag whose default is the chart appVersion
     tag: ""
     sha: ""
@@ -824,7 +825,7 @@ grafana:
 
   extraInitContainers:
     - name: init-custom-plugins
-      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.3.9"
+      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.4.3"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: custom-plugins
