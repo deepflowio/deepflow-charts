@@ -773,8 +773,9 @@ grafana:
   adminPassword: deepflow
 
   image:
+    registry: registry.cn-beijing.aliyuncs.com/deepflow-ce
     ## Grafana aliyun Image repository: registry.cn-beijing.aliyuncs.com/deepflow-ce/grafana
-    repository: grafana/grafana
+    repository: grafana
     # Overrides the Grafana image tag whose default is the chart appVersion
     tag: ""
     sha: ""
@@ -883,3 +884,4 @@ grafana:
     #  - secretName: chart-example-tls
     #    hosts:
     #      - chart-example.local
+  assertNoLeakedSecrets: false
