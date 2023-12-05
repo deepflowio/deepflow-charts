@@ -6,3 +6,6 @@ clickhouse:
   image:
     ## Clickhouse Dockerhub Image repository: clickhouse/clickhouse-server
     repository: clickhouse/clickhouse-server
+grafana:
+  image:
+    registry: docker.io
