@@ -30,6 +30,11 @@ spec:
     spec:
       hostNetwork: {{ tpl (toString .Values.server.hostNetwork) . }}
       dnsPolicy: {{ tpl .Values.server.dnsPolicy . }}
+      dnsConfig:
+        nameservers:
+        {{- with .Values.server.nameservers }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       imagePullSecrets:
       {{- with .Values.global.imagePullSecrets }}
         {{- toYaml . | nindent 8 }}
