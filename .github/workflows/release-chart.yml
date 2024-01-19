@@ -257,3 +257,15 @@ jobs:
           token: ${{ secrets.PUSH_SECRET }}
           ref: 'v6.3'
           inputs: '{ "ref": "Release"}'
+
+      - name: Install k8s
+        run: |
+          sleep 30
+      - name: Invoke workflow in another repo with inputs
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Release Charts
+          repo: deepflowio/deepflow-charts
+          token: ${{ secrets.PUSH_SECRET }}
+          ref: 'v6.4'
+          inputs: '{ "ref": "Release"}'
