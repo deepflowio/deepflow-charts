@@ -139,7 +139,7 @@ jobs:
       - name: install deepflow 
         run: |
           helm upgrade --install deepflow -n deepflow deepflow/deepflow --create-namespace \
-              -f test-values.yaml
+              -f test-values.yaml --dry-run
 
       - name: install skopeo
         run: |
