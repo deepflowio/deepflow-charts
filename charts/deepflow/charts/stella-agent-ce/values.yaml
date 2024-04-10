@@ -1,0 +1,10 @@
+global:
+  allInOneLocalStorage: false
+  storageClass: ""
+
+replicas: 1
+
+image:
+  repository: hub.deepflow.yunshan.net/public
+  pullPolicy: Always
+  tag: latest
