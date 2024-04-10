@@ -67,11 +67,11 @@ global:
 image:
   server:
     repository: "{{ .Values.global.image.repository }}/deepflow-server"
-    tag: v6.4
+    tag: v6.5.4
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
     repository:  "{{ .Values.global.image.repository }}/deepflow-app"
-    tag: v6.4
+    tag: v6.5.4
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
 
 imagePullSecrets: []
@@ -659,7 +659,7 @@ deepflow-agent:
     repository: "{{ .Values.global.image.repository }}/deepflow-agent"
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v6.4
+    tag: v6.5.4
 
   imagePullSecrets: []
   nameOverride: ""
@@ -826,7 +826,7 @@ grafana:
 
   extraInitContainers:
     - name: init-custom-plugins
-      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.4"
+      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.5.4"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: custom-plugins
@@ -862,6 +862,7 @@ grafana:
     CLICKHOUSE_SERVER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
     CLICKHOUSE_USER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
     CLICKHOUSE_PASSWORD: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
+    DEEPFLOW_AI_URL: 'http://{{ include "deepflow.fullname" . }}-stella-agent-ce:20831'
 
   ingress:
     enabled: false
@@ -904,53 +905,119 @@ grafana:
 
 
 stella-agent-ce:
-  replicas: 1
+  enabled: true
+  hostNetwork: "false"
+  dnsPolicy: ClusterFirst
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+  podAnnotations: {}
+
   image:
-    repository: "{{ .Values.global.image.repository }}/df-llm-agent"
+    repository: "{{ .Values.global.image.repository }}/deepflowio-stella-agent-ce"
     pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
     tag: latest
 
-  storageConfig:
-    ## persistentVolumeClaim/hostPath
-    ## If you use hostPath, you must configure nodeAffinityLabelSelector, otherwise your data will be lost when Pod drifts
-    ## 如果使用hostPath存储mysql数据，则必须配置nodeAffinityLabelSelector，避免pod漂移导致数据丢失
-    type: persistentVolumeClaim
-    generateType: "{{ if $.Values.global.allInOneLocalStorage }}hostPath{{ else }}{{$.Values.storageConfig.type}}{{end}}" #Please ignore this
-    hostPath: "/opt/stella-agent-ce/debug/"
-    persistence:
-    - name: debug-path
-      storageClass: "{{ .Values.global.storageClass }}"
-      annotations:
-        "helm.sh/resource-policy": keep
-      # existingClaim: your-claim-pvc-name
-      accessModes:
-        - ReadWriteOnce
-      size: 50Gi
-  configMapData:
-    daemon: true
-    api_timeout: 500
-    sql_show: false
-    log_file: "/var/log/df-llm-agent.log"
-    log_level: "info"
-    instance_path: "/root/df-llm-agent"
-    redis:
-      host:
-        - "redis"
-      cluster_enabled: false
-      port: 6379
-      db: 6
-      password: "password123"
-    mysql:
-      user_name: "root"
-      user_password: "deepflow"
-      host: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}"
-      port: 30130
-      database: "deepflow_llm"
-  nodeAffinityLabelSelector:
-    ## If you use hostPath, you must configure nodeAffinityLabelSelector, otherwise your data will be lost when Pod drifts
-    ## 如果使用hostPath存储stella-agent-ce数据，则必须配置nodeAffinityLabelSelector，避免pod漂移导致数据丢失
-    #- matchExpressions:
-    #  - key: kubernetes.io/hostname
-    #    operator: In
-    ##    values: k8s-master
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext:
+    # privileged: true
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: false
+    # runAsNonRoot: false
+    # runAsUser: 0
+
+  service:
+    ## Configuration for ClickHouse service
+    ##
+    annotations: {}
+    labels: {}
+    clusterIP: ""
+
+    ## Port for ClickHouse Service to listen on
+    ##
+
+    ports:
+    - name: tcp
+      port: 20831
+      targetPort: 20831
+      nodePort: 
+      protocol: TCP
+    ## Additional ports to open for server service
+    additionalPorts: []
+
+    externalIPs: []
+    loadBalancerIP: ""
+    loadBalancerSourceRanges: []
+
+    ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
+  
+    externalTrafficPolicy: Cluster
+
+    ## Service type
+    ##
+    type: ClusterIP
+
+  readinessProbe:
+    httpGet:
+      path: /v1/health/
+      port: http
+    failureThreshold: 10
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    successThreshold: 1
+  livenessProbe:
+    failureThreshold: 6
+    initialDelaySeconds: 15
+    periodSeconds: 20
+    successThreshold: 1
+    httpGet:
+      path: /v1/health/
+      port: http
+    timeoutSeconds: 1
+
+  configmap:
+    df-llm-agent.yaml:
+      daemon: true
+      api_timeout: 500
+      sql_show: "false"
+      log_file: "/var/log/df-llm-agent.log"
+      log_level: "info"
+      instance_path: "/root/df-llm-agent"
+      mysql:
+        host: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}"
+        port: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.port}}{{ else }}30130{{end}}"
+        user_password: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
+        database: "deepflow_llm"
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  podAntiAffinityLabelSelector: []
+  podAntiAffinityTermLabelSelector: []
+  podAffinityLabelSelector: []
+  podAffinityTermLabelSelector: []
+  nodeAffinityLabelSelector: []
+    # - matchExpressions:
+    #     - key: kubernetes.io/hostname
+    #       operator: In
+    #       values: controller
+  nodeAffinityTermLabelSelector: []
 
