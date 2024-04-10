@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stella-agent-ce.fullname" . }}
+  labels:
+    {{- include "stella-agent-ce.labels" . | nindent 4 }}
+spec:
+  replicas: {{ tpl (toString .Values.replicas) . }}
+  selector:
+    matchLabels:
+      {{- include "stella-agent-ce.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "stella-agent-ce.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      hostNetwork: {{ tpl (toString .Values.hostNetwork) . }}
+      dnsPolicy: {{ tpl .Values.dnsPolicy . }}
+      imagePullSecrets:
+      {{- with .Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: stella-agent-ce
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
+          imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
+          ports:
+            - name: http
+              containerPort: 20831
+              protocol: TCP
+          livenessProbe:
+            {{ toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{ toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/web/df-llm-agent.yaml
+              subPath: df-llm-agent.yaml
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "stella-agent-ce.fullname" . }}
+            items:
+            - key: df-llm-agent.yaml
+              path: df-llm-agent.yaml
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+      {{- include "nodeaffinity" . | indent 6 }}
+      {{- include "podAffinity" . | indent 6 }}
+      {{- include "podAntiAffinity" . | indent 6 }}
+      {{- if or .Values.global.tolerations .Values.tolerations }}
+      tolerations:
+      {{- if .Values.global.tolerations }}
+      {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- end }}
