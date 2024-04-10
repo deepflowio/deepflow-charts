@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: df-llm-agent
+  namespace: deepflow
+spec:
+  ports:
+    - port: 20831
+      nodePort: 30831
+      targetPort: 20831
+      protocol: TCP
+      name: http
+  selector:
+    component: df-llm-agent
+  type: NodePort

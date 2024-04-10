@@ -1,0 +1,60 @@
+{{- if and (not $.Values.global.allInOneLocalStorage ) (eq ( tpl $.Values.storageConfig.generateType . ) "hostPath") (not $.Values.nodeAffinityLabelSelector)  }}
+{{- fail "You must set nodeAffinityLabelSelector"  -}}
+{{- end}}
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: df-llm-agent-deployment
+  namespace: deepflow
+  labels:
+    component: df-llm-agent
+spec:
+  replicas: {{ .Values.replicas }}
+  serviceName: df-llm-agent
+  selector:
+    matchLabels:
+      component: df-llm-agent
+  template:
+    metadata:
+      labels:
+        component: df-llm-agent
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: df-llm-agent
+          image: "{{ tpl .Values.image.repository . }}:{{ tpl (toString .Values.image.tag) . }}"
+          imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
+          volumeMounts:
+            - name: debug-path
+              mountPath: /root/debug
+            - name: web-volumes-df-llm-agent
+              mountPath: /etc/web/df-llm-agent.yaml
+              subPath: df-llm-agent.yaml
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+      {{- include "nodeaffinity" . | indent 6 }}
+      {{- include "podAffinity" . | indent 6 }}
+      {{- include "podAntiAffinity" . | indent 6 }}
+      {{- if or .Values.global.tolerations .Values.tolerations }}
+      {{- end }}
+      volumes:
+        - name: web-volumes-df-llm-agent
+          configMap:
+            name: df-llm-agent
+            items:
+            - key: df-llm-agent.yaml
+              path: df-llm-agent.yaml
+      {{- if eq ( tpl .Values.storageConfig.generateType . ) "hostPath" }}
+        - name: debug-path
+          hostPath:
+            path: {{ tpl .Values.storageConfig.hostPath . }}/stella-agent-ce/debug/
+            type: DirectoryOrCreate
+      {{- end }}
+  {{- if eq ( tpl $.Values.storageConfig.generateType . )  "persistentVolumeClaim" }}
+  volumeClaimTemplates:
+  {{- include "persistentVolumeClaim" . | indent 2 }}
+  {{- end }}
