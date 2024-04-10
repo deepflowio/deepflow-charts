@@ -1,0 +1,52 @@
+global:
+  allInOneLocalStorage: false
+  storageClass: ""
+
+replicas: 1
+image:
+  repository: "{{ .Values.global.image.repository }}/df-llm-agent"
+  pullPolicy: Always
+  tag: latest
+storageConfig:
+  ## persistentVolumeClaim/hostPath
+  ## If you use hostPath, you must configure nodeAffinityLabelSelector, otherwise your data will be lost when Pod drifts
+  ## 如果使用hostPath存储mysql数据，则必须配置nodeAffinityLabelSelector，避免pod漂移导致数据丢失
+  type: persistentVolumeClaim
+  generateType: "{{ if $.Values.global.allInOneLocalStorage }}hostPath{{ else }}{{$.Values.storageConfig.type}}{{end}}" #Please ignore this
+  hostPath: "/opt/stella-agent-ce/debug/"
+  persistence:
+  - name: debug-path
+    storageClass: "{{ .Values.global.storageClass }}"
+    annotations:
+      "helm.sh/resource-policy": keep
+    # existingClaim: your-claim-pvc-name
+    accessModes:
+      - ReadWriteOnce
+    size: 50Gi
+configMapData:
+  daemon: true
+  api_timeout: 500
+  sql_show: false
+  log_file: "/var/log/df-llm-agent.log"
+  log_level: "info"
+  instance_path: "/root/df-llm-agent"
+  redis:
+    host:
+      - "redis"
+    cluster_enabled: false
+    port: 6379
+    db: 6
+    password: "password123"
+  mysql:
+    user_name: "root"
+    user_password: "deepflow"
+    host: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.ip}}{{ else }}{{ $.Release.Name }}-mysql{{end}}"
+    port: 30130
+    database: "deepflow_llm"
+nodeAffinityLabelSelector:
+  ## If you use hostPath, you must configure nodeAffinityLabelSelector, otherwise your data will be lost when Pod drifts
+  ## 如果使用hostPath存储stella-agent-ce数据，则必须配置nodeAffinityLabelSelector，避免pod漂移导致数据丢失
+  #- matchExpressions:
+  #  - key: kubernetes.io/hostname
+  #    operator: In
+  ##    values: k8s-master
