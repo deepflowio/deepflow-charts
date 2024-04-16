@@ -11,3 +11,4 @@ grafana:
     registry: docker.io
     repository: grafana/grafana
   assertNoLeakedSecrets: false
+  #
