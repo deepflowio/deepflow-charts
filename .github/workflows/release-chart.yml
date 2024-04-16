@@ -27,7 +27,7 @@ jobs:
         with:
           delete_release: true # default: true
           delete_draft_release: true # default: false; only applicable if delete_release == true
-          tag_name: deepflow-agent-6.4.9
+          tag_name: deepflow-agent-6.4.009
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
@@ -35,7 +35,7 @@ jobs:
         with:
           delete_release: true # default: true
           delete_draft_release: true # default: false; only applicable if delete_release == true
-          tag_name: deepflow-6.4.9
+          tag_name: deepflow-6.4.009
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
