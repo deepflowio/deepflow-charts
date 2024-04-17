@@ -45,3 +45,35 @@ roleRef:
   kind: ClusterRole
   name: {{ include "deepflow-agent.fullname" . }}
   apiGroup: ""
+---
+### DeepFlow Agent remote update is used only to update DeepFlow-Agent's daemonset and configmap
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "deepflow-agent.fullname" . }}-update
+  namespace: {{ .Release.Namespace }}
+rules:
+- apiGroups: [""]
+  resources:
+  - configmaps
+  resourceNames: ['{{ include "deepflow-agent.fullname" . }}-config']
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["apps"]
+  resources:
+  - daemonsets
+  resourceNames: ['{{ include "deepflow-agent.fullname" . }}']
+  verbs: ["get", "list", "watch", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "deepflow-agent.fullname" . }}-update
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "deepflow-agent.fullname" . }}-update
+subjects:
+- kind: ServiceAccount
+  name: {{ include "deepflow-agent.fullname" . }}
+  apiGroup: ""

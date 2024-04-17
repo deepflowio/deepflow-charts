@@ -81,6 +81,10 @@ spec:
           env:
           - name: TZ
             value: {{ tpl .Values.timezone . }}
+          - name: K8S_NAMESPACE_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           - name: K8S_NODE_IP_FOR_DEEPFLOW
             valueFrom:
               fieldRef:
@@ -93,6 +97,11 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
+          - name: K8S_MEM_LIMIT_FOR_DEEPFLOW
+            valueFrom:
+              resourceFieldRef:
+                divisor: 1Mi
+                resource: limits.memory
           {{- if .Values.tke_sidecar }}
           - name: CTRL_NETWORK_INTERFACE
             value: "eth0"
@@ -105,11 +114,6 @@ spec:
               {{- else }}
                 fieldPath: status.podIP
               {{- end }}
-          - name: K8S_MEM_LIMIT_FOR_DEEPFLOW
-            valueFrom:
-              resourceFieldRef:
-                divisor: 1Mi
-                resource: limits.memory
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
