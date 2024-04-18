@@ -21,6 +21,8 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: v6.5.4
 
+env: []
+
 imagePullSecrets: []
 nameOverride: ""
 agentFullnameOverride: "deepflow-agent"
