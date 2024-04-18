@@ -55,6 +55,10 @@ spec:
           env:
           - name: ONLY_WATCH_K8S_RESOURCE
             value: "true"
+          {{- range .Values.env}}
+          - name: {{ .name }}
+            value: {{ .value }}
+          {{- end}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

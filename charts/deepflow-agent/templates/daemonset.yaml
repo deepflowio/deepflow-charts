@@ -109,6 +109,10 @@ spec:
               {{- else }}
                 fieldPath: status.podIP
               {{- end }}
+          {{- range .Values.env}}
+          - name: {{ .name }}
+            value: {{ .value }}
+          {{- end}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
