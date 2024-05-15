@@ -768,6 +768,7 @@ deepflow-agent:
 
 grafana:
   enabled: true
+  podAnnotations: {}
   namespaceOverride: ""
 
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
