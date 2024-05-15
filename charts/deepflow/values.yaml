@@ -95,6 +95,7 @@ securityContext: {}
 server:
   ## Pod Labels
   podLabels: {}
+  podAnnotations: {}
   replicas: "{{ .Values.global.replicas }}"
   hostNetwork:  "{{ .Values.global.hostNetwork }}"
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
@@ -223,6 +224,7 @@ server:
   #     hostPath: /usr/shared/
 
 app:
+  podAnnotations: {}
   replicas: "1"
   ## Pod Labels
   podLabels: {}
