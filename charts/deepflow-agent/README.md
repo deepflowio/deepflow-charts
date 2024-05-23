@@ -1,7 +1,7 @@
-# DeepFlow Helm Charts
+# DeepFlow Agent Helm Charts
 
 
-This repository contains [Helm](https://helm.sh/) charts for DeepFlow project.
+This repository contains [Helm](https://helm.sh/) charts for DeepFlow Agent project.
 
 ## Usage
 
@@ -22,16 +22,16 @@ helm repo udpate deepflow
 
 ## Helm Charts
 
-You can then run `helm search repo deepflow` to see the charts.
+You can then run `helm search repo deepflow-agent` to see the charts.
 
 _See [helm repo](https://helm.sh/docs/helm/helm_repo/) for command documentation._
 
 ## Installing the Chart
 
-To install the chart with the release name `deepflow`:
+To install the chart with the release name `deepflow-agent`:
 
 ```console
-helm install deepflow -n deepflow deepflow/deepflow --create-namespace
+helm install deepflow-agent -n deepflow deepflow/deepflow-agent --create-namespace
 ```
 
 ## Uninstalling the Chart
@@ -39,36 +39,24 @@ helm install deepflow -n deepflow deepflow/deepflow --create-namespace
 To uninstall/delete the my-release deployment:
 
 ```console
-helm delete deepflow -n deepflow
+helm delete deepflow-agent -n deepflow
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
-
-## Dependencies
-
-By default this chart installs additional, dependent charts:
-
-- [grafana/grafana](https://github.com/grafana/helm-charts/tree/main/charts/grafana)
 
 
 
 ## Main values block usage:
 
-### Global
+### Common
 
 ```yaml
-  password: 
-    mysql: deepflow ## mysql root account password
-    grafana: deepflow ## grafana admin account password
-  replicas: 1 ## Number of replicas for deepflow-server and clickhouse
-  nodePort: ## NodePort that requires a fixed port
-    clickhouse: 30900
-    deepflowServerIngester: 30033
-    deepflowServerGrpc: 30035
-    deepflowServerSslGrpc: 30135
-    deepflowServerhealthCheck: 30417
-  ntpServer: ntp.aliyun.com ## ntp server address, you need to ensure that udp 123 port is available
-  allInOneLocalStorage: false   ## Whether to enable allInone local storage, if enabled, the local /opt directory is used to store data by default, ignoring the node affinity check, and is not responsible for any data persistence
+deepflowServerNodeIPS:
+  - deepflow-server # The IP address of the Deepflow server node
+deepflowK8sClusterID: e70999ed-fdff-4277-be3c-4a3fceae215f # The ID of the Deepflow Kubernetes cluster
+agentGroupID: 1 # The ID of the agent group
+controllerPort: 443 # The port of the kubernetes apiserver 
+clusterNAME: worker # # The name of the cluster
 ```
 
 
@@ -150,32 +138,3 @@ The affinity of component. Combine `global.affinity` by 'OR'.
           operator: In
           values: deepflow,deepflowys
   ```
-
-### Storage config
-
-```yaml
-  storageConfig:
-    type: persistentVolumeClaim  ## persistentVolumeClaim or hostPath,If you use hostPath, you must configure nodeAffinityLabelSelector, otherwise your data will be lost when Pod drifts
-    generateType: "{{ if $.Values.global.allInOneLocalStorage }}hostPath{{ else }}{{$.Values.storageConfig.type}}{{end}}" #Please ignore this
-    hostPath: /opt/deepflow-clickhouse ## your hostPath path
-    persistence: ## volumeClaimTemplates configuration
-      - name: clickhouse-path
-        accessModes:
-        - ReadWriteOnce
-        size: 100Gi
-        annotations: 
-        storageClass: "-"
-        # selector:
-        #   matchLabels:
-        #     app.kubernetes.io/name: clickhouse
-      - name: clickhouse-storage-path
-        accessModes:
-        - ReadWriteOnce
-        size: 200Gi
-        annotations: 
-        storageClass: "-"
-        # selector:
-        #   matchLabels:
-        #     app.kubernetes.io/name: clickhouse
-    s3StorageEnabled: false
-```
