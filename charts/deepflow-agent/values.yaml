@@ -19,7 +19,7 @@ image:
   repository: registry.cn-hongkong.aliyuncs.com/deepflow-ce/deepflow-agent
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: v6.5.4
+  tag: v6.5
 
 env: []
 
@@ -101,6 +101,7 @@ deepflowK8sClusterID:
 agentGroupID:
 controllerPort:
 clusterNAME:
+teamId:
 ## This command takes effect when agent-group-config external_agent_http_proxy_enabled=1 is configured using deepflow-ctl
 ## Set the port to the agent-group-config port
 externalAgentHttpProxyPort: 38086
@@ -113,6 +114,7 @@ deepflowAgentConfig:
     {{- if .Values.deepflowK8sClusterID }}{{ nindent 4 "kubernetes-cluster-id:" }} {{ .Values.deepflowK8sClusterID }}{{ end -}}
     {{- if .Values.controllerPort }}{{ nindent 4 "controller-port:" }} {{ .Values.controllerPort }}{{ end -}}
     {{- if .Values.clusterNAME }}{{ nindent 4 "kubernetes-cluster-name:" }} {{ .Values.clusterNAME }}{{ end -}}
+    {{- if .Values.teamId }}{{ nindent 4 "team-id:" }} {{ .Values.teamId }}{{ end -}}
 
 resources:
   limits:
