@@ -679,6 +679,7 @@ deepflow-agent:
   podSecurityContext: {}
     # fsGroup: 2000
   hostNetwork: "false"
+  dnsPolicy: "ClusterFirst"
   ## Mount the netns hostPath directory read-only 
   netns:
     mount: false
