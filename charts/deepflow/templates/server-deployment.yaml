@@ -17,8 +17,8 @@ spec:
         {{- with .Values.server.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/customConfig: {{ sha256sum (print (tpl (toYaml .Values.configmap) $)) }}
+        checksum/config: "{{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}"
+        checksum/customConfig: "{{ print (tpl (toYaml .Values.configmap) $) | sha256sum }}"
       labels:
         {{- include "deepflow-server.selectorLabels" . | nindent 8 }}
         {{- range $index, $values := .Values.server.featureFlag }}
