@@ -1,0 +1,446 @@
+# Default values for byconity.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: byconity/byconity
+  tag: 1.0.0
+  imagePullPolicy: IfNotPresent
+
+byconity:
+  hdfs_address: hdfs://byconity-hdfs-namenodes:8020  #default hdfs
+  #  if “hdfs_ha_nameservice” is configured, the “hdfs_address” configuration will be ineffective
+  #  hdfs_ha_nameservice: hdfs_service  # after configuring “namespace”, you need to configure the address of the namespace in “hdfs3Config”
+  #  if you want to use your own fdb please add the following 2 configurations
+  #  use_existing_fdb: true
+  #  fdb_cluster_file: byconity_fdb:Is0hBgl6iICdHuspBmhAODmD5WISXKzI@192.168.224.150:4501,192.168.226.83:4501,192.168.228.152:4501
+  hdfs3Config:
+    dfs.client.metrics.enable: true
+    dfs.client.metrics.use_domain_socket: true
+    dfs.default.blocksize: "268435456"
+    dfs.read.hedge_read.interval_ms: 120
+    input.connect.timeout: 10000
+    input.read.max.retry: 3
+    input.read.timeout: 6000
+    input.write.timeout: 10000
+    output.close.timeout: 256000
+    output.connect.timeout: 10000
+    output.default.write.retry: 3
+    output.read.timeout: 120000
+    output.write.timeout: 256000
+    rpc.client.connect.retry: 3
+    rpc.client.connect.timeout: 10000
+    rpc.client.read.timeout: 20000
+    rpc.client.timeout: 20000
+    rpc.client.write.timeout: 20000
+
+  configOverwrite:
+    storage_configuration:
+      cnch_default_policy: cnch_default_hdfs
+      disks:
+        server_hdfs_disk:
+          path: /var/byconity/data
+          type: hdfs
+        server_local_0:
+          path: /var/byconity/data/
+          type: local
+        #
+        # server_s3_disk_0:
+        #   path: byconity0
+        #   endpoint: http://xxx.xxx.xxx.xxx:9000
+        #   region: cn-beijing
+        #   bucket: cch-test
+        #   ak_id: minio
+        #   ak_secret: minio123
+        #   type: bytes3
+        #   is_virtual_hosted_style: false
+
+      policies:
+        cnch_default_hdfs:
+          volumes:
+            hdfs:
+              default: server_hdfs_disk
+              disk: server_hdfs_disk
+        default:
+          volumes:
+            local:
+              default: server_local_0
+              disk: server_local_0
+
+        # cnch_default_s3:
+        #   volumes:
+        #     bytes3:
+        #       default: server_s3_disk_0
+        #       disk: server_s3_disk_0
+
+  ports:
+    tcp: 9000
+    http: 8123
+    rpc: 8124
+    tcpSecure: 9100
+    https: 9123
+    exchange: 9410
+    exchangeStatus: 9510
+
+  usersOverwrite:
+    users:
+      default:
+        password: ""
+      probe:
+        password: probe
+
+  server:
+    replicas: 1
+    image: ""
+    podAnnotations: {}
+    resources: {}
+    hostNetwork: false
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    imagePullSecrets: []
+    securityContext: {}
+    livenessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/liveness" ]
+      failureThreshold: 6
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 20
+    readinessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/readiness" ]
+      failureThreshold: 5
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    storage:
+      localDisk:
+        pvcSpec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 500Gi
+          storageClassName: your-storage-class
+      log:
+        pvcSpec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Gi
+          storageClassName: your-storage-class
+    configOverwrite:
+      logger:
+        level: trace
+      disk_cache_strategies:
+        simple:
+          lru_max_size: 429496729600 # 400Gi
+      # timezone: Etc/UTC
+
+  tso:
+    replicas: 1
+    image: ""
+    podAnnotations: {}
+    resources: {}
+    hostNetwork: false
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    imagePullSecrets: []
+    securityContext: {}
+    livenessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/liveness-tso" ]
+      failureThreshold: 6
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 20
+    readinessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/readiness-tso" ]
+      failureThreshold: 5
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    configOverwrite: {}
+    additionalVolumes: { }
+    storage:
+      localDisk:
+        pvcSpec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 500Gi
+          storageClassName: your-storage-class
+      log:
+        pvcSpec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Gi
+          storageClassName: your-storage-class
+
+
+  daemonManager:
+    replicas: 1 # Please keep single instance now, daemon manager HA is WIP
+    image: ""
+    podAnnotations: {}
+    livenessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/liveness-dm" ]
+      failureThreshold: 6
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 20
+    readinessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/readiness-dm" ]
+      failureThreshold: 5
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    resources: {}
+    hostNetwork: false
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    imagePullSecrets: []
+    securityContext: {}
+    configOverwrite: {}
+
+  resourceManager:
+    replicas: 1
+    image: ""
+    podAnnotations: {}
+    resources: {}
+    livenessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/liveness-rm" ]
+      failureThreshold: 6
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 20
+    readinessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/readiness-rm" ]
+      failureThreshold: 5
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    hostNetwork: false
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    imagePullSecrets: []
+    securityContext: {}
+    configOverwrite: {}
+
+  defaultWorker: &defaultWorker
+    replicas: 1
+    image: ""
+    podAnnotations: {}
+    resources: {}
+    hostNetwork: false
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    imagePullSecrets: []
+    securityContext: {}
+    livenessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/liveness" ]
+      failureThreshold: 6
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 20
+    readinessProbe:
+      exec:
+        command: [ "/opt/byconity/scripts/lifecycle/readiness" ]
+      failureThreshold: 5
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    storage:
+      localDisk:
+        pvcSpec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 500Gi
+          storageClassName: your-storage-class
+      log:
+        pvcSpec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Gi
+          storageClassName: your-storage-class
+    configOverwrite:
+      logger:
+        level: trace
+      disk_cache_strategies:
+        simple:
+          lru_max_size: 429496729600 # 400Gi
+      # timezone: Etc/UTC
+
+  virtualWarehouses:
+    - <<: *defaultWorker
+      name: vw_default
+      replicas: 1
+    - <<: *defaultWorker
+      name: vw_write
+      replicas: 1
+
+  commonEnvs:
+    - name: MY_POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: "metadata.namespace"
+    - name: MY_POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: "metadata.name"
+    - name: MY_UID
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: "metadata.uid"
+    - name: MY_POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: "status.podIP"
+    - name: MY_HOST_IP
+      valueFrom:
+        fieldRef:
+          # fieldPath: "status.hostIP"
+          fieldPath: "status.podIP"
+    - name: CONSUL_HTTP_HOST
+      valueFrom:
+        fieldRef:
+          fieldPath: "status.hostIP"
+
+  additionalEnvs: []
+
+  additionalVolumes:
+    volumes: []
+    volumeMounts: []
+
+  postStart: ""
+  preStop: ""
+  readiness: ""
+  liveness: ""
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: byconity-example.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+    #  - secretName: byconity-example-tls
+    #    hosts:
+    #      - byconity-example.local
+
+# For more detailed usage, please check fdb-kubernetes-operator API doc: https://github.com/FoundationDB/fdb-kubernetes-operator/blob/main/docs/cluster_spec.md
+fdb:
+  enabled: true
+  enableCliPod: true
+  version: 7.1.15
+  clusterSpec: {}
+
+fdb-operator:
+  enabled: true
+  resources:
+    limits:
+      cpu: 1
+      memory: 512Mi
+    requests:
+      cpu: 1
+      memory: 512Mi
+  image:
+    repository: foundationdb/fdb-kubernetes-operator
+    tag: v1.9.0
+    pullPolicy: IfNotPresent
+
+hdfs:
+  enabled: false
+  namenode:
+    repository: gchq/hdfs
+    tag: 3.2.2 # managed version
+    resources: {}
+    nodeSelector: {}
+    dataVolumes:
+      count: 1
+      pvcTemplateSpec:
+        storageClassName: your-storage-class
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+    extraEnvVars: {}
+    # Example usage:
+    # HADOOP_HEAPSIZE_MIN: 128m
+    # hadoop.heapsize.min: 128m
+  datanode:
+    nodeCount: 3
+    repository: gchq/hdfs
+    tag: 3.2.2 # managed version
+    resources: {}
+    nodeSelector: {}
+    dataVolumes:
+      count: 1
+      pvcTemplateSpec:
+        storageClassName: your-storage-class
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+    extraEnvVars: {}
+    # Example usage:
+    # HADOOP_HEAPSIZE_MIN: 128m
+    # hadoop.heapsize.min: 128m
+  config:
+    hdfsSite:
+      dfs.permissions.enabled: "false"
+      dfs.namenode.datanode.registration.ip-hostname-check: "false"
+  shell:
+    enabled: true
+    repository: gchq/hdfs
+    tag: 3.2.2 # managed version
+    imagePullPolicy: IfNotPresent
+    imagePullSecrets: []
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+  postInstallCommands: []
+  # - hadoop fs -mkdir -p /accumulo
+  # - hadoop fs -chown accumulo /accumulo
+  # - hadoop fs -chmod 700 /accumulo
+  # - hadoop fs -ls /

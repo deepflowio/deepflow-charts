@@ -1,0 +1,37 @@
+logger:
+  level: trace
+  log: /var/log/byconity/daemon-manager.log
+  errorlog: /var/log/byconity/daemon-manager.err.log
+  testlog: /var/log/byconity/daemon-manager.test.log
+  size: 1000M
+  count: 10
+  console: true
+listen_host: "::"
+path: /var/byconity
+tmp_path: /var/byconity/tmp/
+catalog_service:
+  type: fdb
+  fdb:
+    cluster_file: /etc/byconity/fdb/cluster-file
+daemon_manager:
+  port: 9000
+  http:
+    port: 8123 # todo remove in the future
+    receive_timeout: 1800
+    send_timeout: 1800
+  workload_thread_interval_ms: 1000
+  daemon_jobs:
+    job:
+      - name: PART_GC
+        interval: 10000
+      - name: PART_MERGE
+        interval: 10000
+      - name: CONSUMER
+        interval: 10000
+      - name: GLOBAL_GC
+        interval: 5000
+      - name: TXN_GC
+        interval: 600000
+
+hdfs3_config: /etc/byconity/hdfs3.xml
+cnch_config: /etc/byconity/cnch-config.yaml

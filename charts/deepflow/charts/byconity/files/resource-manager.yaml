@@ -1,0 +1,30 @@
+logger:
+  level: trace
+  log: /var/log/byconity/resource-manager.log
+  errorlog: /var/log/byconity/resource-manager.err.log
+  testlog: /var/log/byconity/resource-manager.test.log
+  size: 1000M
+  count: 10
+  console: true
+listen_host: "::"
+catalog_service:
+  type: fdb
+  fdb:
+    cluster_file: /etc/byconity/fdb/cluster-file
+resource_manager:
+  port: 9000
+  http:
+    port: 8123
+    receive_timeout: 1800
+    send_timeout: 1800
+  vws:
+    vw:
+      - name: vw_default
+        type: default
+        num_workers: 1
+        worker_groups: ""
+      - name: vw_write
+        type: write
+        num_workers: 1
+        worker_groups: ""
+cnch_config: /etc/byconity/cnch-config.yaml

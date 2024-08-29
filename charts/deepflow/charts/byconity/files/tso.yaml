@@ -1,0 +1,38 @@
+logger:
+  level: trace
+  log: /var/log/byconity/tso.log
+  errorlog: /var/log/byconity/tso.err.log
+  testlog: /var/log/byconity/tso.test.log
+  size: 1000M
+  count: 10
+  console: true
+listen_host: "::"
+path: /var/byconity/tso
+tmp_path: /var/byconity/tmp
+tso_service:
+  type: fdb
+  fdb:
+    cluster_file: /etc/byconity/fdb/cluster-file
+  port: 9000
+  http:
+    port: 8123
+    receive_timeout: 1800
+    send_timeout: 1800
+  tso_window_ms: 3000
+  tso_get_leader_info_interval_ms: 0
+# keeper_server:
+#   tcp_port: 9181 # tcp port, Receive request (like Zookeeper)
+#   server_id: 0 # should be uniq, used in leader-election TODO
+#   log_storage_path: /var/byconity/tso/log
+#   snapshot_storage_path: /var/byconity/tso/snapshots
+#   coordination_settings:
+#     operation_timeout_ms: 10000
+#     session_timeout_ms: 30000
+#     raft_logs_level: warning
+#     compress_logs: 1
+# zookeeper: {}
+cnch_config: /etc/byconity/cnch-config.yaml
+catalog_service:
+  type: fdb
+  fdb:
+    cluster_file: /etc/byconity/fdb/cluster-file

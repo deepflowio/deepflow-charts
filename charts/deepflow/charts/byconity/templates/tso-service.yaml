@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "byconity.fullname" . }}-tso
+  labels:
+    {{- include "byconity.labels" . | nindent 4 }}
+    byconity-role: tso
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "byconity.selectorLabels" . | nindent 4 }}
+    byconity-role: tso
+  ports:
+    - name: port0
+      port: 9000
+      targetPort: tcp
+    - name: port1
+      port: 9445  # keeper log
+      targetPort: tcp
+    - name: port2
+      port: 9181  # keeper
+      targetPort: tcp
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "byconity.fullname" . }}-tso-headless
+  labels:
+    {{- include "byconity.labels" . | nindent 4 }}
+    byconity-role: tso
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    {{- include "byconity.selectorLabels" . | nindent 4 }}
+    byconity-role: tso
+  ports:
+    - name: port0
+      port: 9000
+      targetPort: tcp
+    - name: port1
+      port: 9445  # keeper log
+      targetPort: tcp
+    - name: port2
+      port: 9181  # keeper
+      targetPort: tcp

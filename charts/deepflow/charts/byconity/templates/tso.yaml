@@ -1,0 +1,133 @@
+{{- $imageRepository := tpl $.Values.image.repository . }}
+{{- with .Values.byconity.tso }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "byconity.fullname" $ }}-tso
+  labels:
+    {{- include "byconity.labels" $ | nindent 4 }}
+    byconity-role: tso
+spec:
+  replicas: {{ .replicas }}
+  serviceName: {{ include "byconity.fullname" $ }}-tso
+  selector:
+    matchLabels:
+      {{- include "byconity.selectorLabels" $ | nindent 6 }}
+      byconity-role: tso
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- with .podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "byconity.selectorLabels" $ | nindent 8 }}
+        byconity-role: tso
+    spec:
+      containers:
+        - name: byconity-tso
+          image: "{{ $imageRepository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.imagePullPolicy }}
+          env:
+            {{- toYaml $.Values.byconity.commonEnvs | nindent 12 }}
+            - name: BYCONITY_ROLE
+              value: tso
+          {{- if $.Values.byconity.additionalEnvs }}
+            {{- toYaml $.Values.byconity.additionalEnvs | nindent 12 }}
+          {{- end }}
+            - name: TSO_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: "status.podIP"
+          {{- if .resources }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: tcp
+              containerPort: {{ $.Values.byconity.ports.tcp }}
+          readinessProbe:
+            {{- .readinessProbe | toYaml | nindent 12 }}
+          livenessProbe:
+            {{- .livenessProbe | toYaml | nindent 12 }}
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/opt/byconity/scripts/lifecycle/poststart"]
+            preStop:
+              exec:
+                command: ["/opt/byconity/scripts/lifecycle/prestop"]
+          volumeMounts:
+            - name: run
+              mountPath: /etc/service/byconity/run
+              subPath: run
+            - name: config
+              mountPath: /etc/byconity
+            - name: lifecycle
+              mountPath: /opt/byconity/scripts/lifecycle
+            - name: fdb-config
+              mountPath: /etc/byconity/fdb
+            - name: local-disk
+              mountPath: /var/byconity
+            - name: log
+              mountPath: /var/log/byconity
+          {{- if $.Values.byconity.tso.additionalVolumes.volumeMounts }}
+            {{- toYaml $.Values.byconity.tso.additionalVolumes.volumeMounts | nindent 12 }}
+          {{- end }}
+          {{- if .securityContext }}
+          securityContext:
+            {{- toYaml .securityContext | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: run
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-tso-run
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-tso-config
+        - name: lifecycle
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-lifecycle
+            defaultMode: 0755
+        - name: fdb-config
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-fdb-config
+      {{- if $.Values.byconity.tso.additionalVolumes.volumes }}
+        {{- toYaml $.Values.byconity.tso.additionalVolumes.volumes | nindent 8 }}
+      {{- end }}
+      hostNetwork: {{ .hostNetwork }}
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      imagePullSecrets:
+      {{- with $.Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: local-disk
+      spec:
+        {{- toYaml .storage.localDisk.pvcSpec | nindent 8 }}
+    - metadata:
+        name: log
+      spec:
+        {{- toYaml .storage.log.pvcSpec | nindent 8 }}
+    {{- if $.Values.byconity.tso.additionalVolumeClaimTemplates }}
+    {{- toYaml $.Values.byconity.tso.additionalVolumeClaimTemplates | nindent 4 }}
+    {{- end }}
+{{- end }}

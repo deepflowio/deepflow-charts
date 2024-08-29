@@ -1,0 +1,76 @@
+{{- range .Values.byconity.virtualWarehouses }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "byconity.fullname" $ }}-vw-{{ .name | replace "_" "-"}}
+  labels:
+    {{- include "byconity.labels" $ | nindent 4 }}
+    byconity-role: worker
+    byconity-vw: {{ .name }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "byconity.selectorLabels" $ | nindent 4 }}
+    byconity-role: worker
+  ports:
+    - name: port0
+      port: {{ $.Values.byconity.ports.tcp }}
+      targetPort: tcp
+    - name: port1
+      port: {{ $.Values.byconity.ports.rpc }}
+      targetPort: rpc
+    - name: port2
+      port: {{ $.Values.byconity.ports.http }}
+      targetPort: http
+    - name: port3
+      port: {{ $.Values.byconity.ports.tcpSecure }}
+      targetPort: tcp-secure
+    - name: port4
+      port: {{ $.Values.byconity.ports.https }}
+      targetPort: https
+    - name: port5
+      port: {{ $.Values.byconity.ports.exchange }}
+      targetPort: exchange
+    - name: port6
+      port: {{ $.Values.byconity.ports.exchangeStatus }}
+      targetPort: exchange-status
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "byconity.fullname" $ }}-vw-{{ .name | replace "_" "-"}}-headless
+  labels:
+    {{- include "byconity.labels" $ | nindent 4 }}
+    byconity-role: worker
+    byconity-vw: {{ .name }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    {{- include "byconity.selectorLabels" $ | nindent 4 }}
+    byconity-role: worker
+  ports:
+    - name: port0
+      port: {{ $.Values.byconity.ports.tcp }}
+      targetPort: tcp
+    - name: port1
+      port: {{ $.Values.byconity.ports.rpc }}
+      targetPort: rpc
+    - name: port2
+      port: {{ $.Values.byconity.ports.http }}
+      targetPort: http
+    - name: port3
+      port: {{ $.Values.byconity.ports.tcpSecure }}
+      targetPort: tcp-secure
+    - name: port4
+      port: {{ $.Values.byconity.ports.https }}
+      targetPort: https
+    - name: port5
+      port: {{ $.Values.byconity.ports.exchange }}
+      targetPort: exchange
+    - name: port6
+      port: {{ $.Values.byconity.ports.exchangeStatus }}
+      targetPort: exchange-status
+{{- end }}

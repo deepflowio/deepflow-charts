@@ -1,0 +1,159 @@
+{{- $imageRepository := tpl $.Values.image.repository . }}
+{{- range .Values.byconity.virtualWarehouses }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "byconity.fullname" $ }}-vw-{{ .name | replace "_" "-" }}
+  labels:
+    {{- include "byconity.labels" $ | nindent 4 }}
+    byconity-role: worker
+    byconity-vw: {{ .name }}
+spec:
+  replicas: {{ .replicas }}
+  serviceName: {{ include "byconity.fullname" $ }}-vw-{{ .name | replace "_" "-" }}
+  selector:
+    matchLabels:
+      {{- include "byconity.selectorLabels" $ | nindent 6 }}
+      byconity-role: worker
+      byconity-vw: {{ .name }}
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- with .podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "byconity.selectorLabels" $ | nindent 8 }}
+        byconity-role: worker
+        byconity-vw: {{ .name }}
+    spec:
+      containers:
+        - name: byconity-worker
+          image: "{{ $imageRepository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.imagePullPolicy }}
+          env:
+            {{- toYaml $.Values.byconity.commonEnvs | nindent 12 }}
+            - name: BYCONITY_ROLE
+              value: worker
+          {{- if $.Values.byconity.additionalEnvs }}
+            {{- toYaml $.Values.byconity.additionalEnvs | nindent 12 }}
+          {{- end }}
+            - name: VIRTUAL_WAREHOUSE_ID
+            {{- if .virtual_warehouse_id }}
+              value: {{ .virtual_warehouse_id }}
+            {{- else }}
+              value: {{ .name }}
+            {{- end }}
+            - name: WORKER_GROUP_ID
+            {{- if .worker_group_id }}
+              value: {{ .worker_group_id }}
+            {{- else }}
+              value: {{ .name }}
+            {{- end }}
+            - name: WORKER_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: "metadata.name"
+          {{- if .resources }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: tcp
+              containerPort: {{ $.Values.byconity.ports.tcp }}
+            - name: rpc
+              containerPort: {{ $.Values.byconity.ports.rpc }}
+            - name: http
+              containerPort: {{ $.Values.byconity.ports.http }}
+            - name: tcp-secure
+              containerPort: {{ $.Values.byconity.ports.tcpSecure }}
+            - name: https
+              containerPort: {{ $.Values.byconity.ports.https }}
+            - name: exchange
+              containerPort: {{ $.Values.byconity.ports.exchange }}
+            - name: exchange-status
+              containerPort: {{ $.Values.byconity.ports.exchangeStatus }}
+          readinessProbe:
+            {{- .readinessProbe | toYaml | nindent 12 }}
+          livenessProbe:
+            {{- .livenessProbe | toYaml | nindent 12 }}
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/opt/byconity/scripts/lifecycle/poststart"]
+            preStop:
+              exec:
+                command: ["/opt/byconity/scripts/lifecycle/prestop"]
+          volumeMounts:
+            - name: run
+              mountPath: /etc/service/byconity/run
+              subPath: run
+            - name: config
+              mountPath: /etc/byconity
+            - name: lifecycle
+              mountPath: /opt/byconity/scripts/lifecycle
+            - name: local-disk
+              mountPath: /var/byconity
+            - name: log
+              mountPath: /var/log/byconity
+            - name: fdb-config
+              mountPath: /etc/byconity/fdb
+          {{- if $.Values.byconity.additionalVolumes.volumeMounts }}
+            {{- toYaml $.Values.byconity.additionalVolumes.volumeMounts | nindent 12 }}
+          {{- end }}
+          {{- if .securityContext }}
+          securityContext:
+            {{- toYaml .securityContext | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: run
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-worker-run
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-vw-{{ .name | replace "_" "-" }}-config
+        - name: lifecycle
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-lifecycle
+            defaultMode: 0755
+        - name: fdb-config
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-fdb-config
+      {{- if $.Values.byconity.additionalVolumes.volumes }}
+        {{- toYaml $.Values.byconity.additionalVolumes.volumes | nindent 8 }}
+      {{- end }}
+      hostNetwork: {{ .hostNetwork }}
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      imagePullSecrets:
+      {{- with $.Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: local-disk
+      spec:
+        {{- toYaml .storage.localDisk.pvcSpec | nindent 8 }}
+    - metadata:
+        name: log
+      spec:
+        {{- toYaml .storage.log.pvcSpec | nindent 8 }}
+{{- end }}

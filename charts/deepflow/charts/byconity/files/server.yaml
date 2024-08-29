@@ -1,0 +1,64 @@
+logger:
+  level: debug
+  log: /var/log/byconity/byconity.log
+  errorlog: /var/log/byconity/byconity.err.log
+  testlog: /var/log/byconity/byconity.test.log
+  size: 5000M
+  count: 50
+  console: true
+listen_host:
+  - '::'
+  - '0.0.0.0'
+listen_try: 1
+
+tcp_port: 9000
+http_port: 8123
+rpc_port: 8124
+exchange_port: 9410
+exchange_status_port: 9510
+
+prometheus:
+  endpoint: /metrics
+  port: 0
+  metrics: true
+  events: true
+  asynchronous_metrics: true
+  part_metrics: false
+path: /var/byconity
+tmp_path: /var/byconity/tmp
+users_config: /etc/byconity/users.yaml
+dictionaries_config: '*_dictionary.xml'
+format_schema_path: /var/byconity/format_schemas/
+cnch_type: server
+tso_service:
+  tso_window_ms: 3000
+  tso_get_leader_info_interval_ms: 0
+  tso_max_retry_count: 3
+catalog_service:
+  type: fdb
+  fdb:
+    cluster_file: /etc/byconity/fdb/cluster-file
+
+hdfs3_config: /etc/byconity/hdfs3.xml
+cnch_kafka_log:
+  database: cnch_system
+  table: cnch_kafka_log
+  flush_max_row_count: 100000
+  flush_interval_milliseconds: 60000
+disk_cache_strategies:
+  simple:
+    lru_max_size: 2199023255552 # 2Ti
+merge_selector: dance # todo remove later when engine support
+plan_segment_log:
+  database: system
+  table: plan_segment_log
+  partition_by: event_date
+  flush_interval_milliseconds: 15000
+query_log:
+  database: system
+  table: query_log
+  partition_by: event_date
+  flush_interval_milliseconds: 15000
+mark_cache_size: 5368709120
+#zookeeper: {}
+cnch_config: /etc/byconity/cnch-config.yaml

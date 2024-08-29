@@ -10,3 +10,90 @@ grafana:
   image:
     registry: docker.io
     repository: grafana/grafana
+  assertNoLeakedSecrets: false
+  #
+
+byconity:
+  enabled: true
+  nameOverride: ""
+  fullnameOverride: ""
+
+  image:
+    repository: byconity/byconity
+    tag: 1.0.0
+    imagePullPolicy: IfNotPresent
+  fdbShell:
+    image:
+      repository: foundationdb
+
+  # For more detailed usage, please check fdb-kubernetes-operator API doc: https://github.com/FoundationDB/fdb-kubernetes-operator/blob/main/docs/cluster_spec.md
+  fdb:
+    enabled: true
+    enableCliPod: true
+    version: 7.1.15
+    clusterSpec:
+      mainContainer:
+        imageConfigs:
+        - version: 7.1.15
+          baseImage: foundationdb/foundationdb
+          tag: 7.1.15
+      sidecarContainer:
+        imageConfigs:
+        - version: 7.1.15
+          baseImage: foundationdb/foundationdb-kubernetes-sidecar
+          tag: 7.1.15-1
+      processCounts:
+        stateless: 3
+        log: 3
+        storage: 3
+      processes:
+        general:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: openebs-hostpath #replace to your storageClassName
+              resources:
+                requests:
+                  storage: 20Gi
+
+  fdb-operator:
+    enabled: true
+    resources:
+      limits:
+        cpu: 1
+        memory: 512Mi
+      requests:
+        cpu: 1
+        memory: 512Mi
+    affinity:  
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: tsdb
+              operator: In
+              values:
+              - enable
+    image:
+      repository: foundationdb/fdb-kubernetes-operator
+      tag: v1.9.0
+      pullPolicy: IfNotPresent
+    initContainerImage:
+      repository:  foundationdb/foundationdb-kubernetes-sidecar
+    initContainers:
+      6.2:
+        image:
+          repository: foundationdb/foundationdb-kubernetes-sidecar
+          tag: 6.2.30-1
+          pullPolicy: IfNotPresent
+      6.3:
+        image:
+          repository: foundationdb/foundationdb-kubernetes-sidecar
+          tag: 6.3.23-1
+          pullPolicy: IfNotPresent
+      7.1:
+        image:
+          repository: foundationdb/foundationdb-kubernetes-sidecar
+          tag: 7.1.15-1
+          pullPolicy: IfNotPresent
+  hdfs:
+    enabled: false

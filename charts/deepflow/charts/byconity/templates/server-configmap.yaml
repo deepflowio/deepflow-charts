@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "byconity.fullname" . }}-server-run
+  labels:
+    {{- include "byconity.labels" . | nindent 4 }}
+    byconity-role: server
+data:
+  run: |
+    #!/bin/bash
+    chown root. /var/byconity /var/log/byconity
+    exec "${APP_ROOT}/bin/clickhouse-server" --config "/etc/byconity/server.yaml"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "byconity.fullname" . }}-server-config
+  labels:
+    {{- include "byconity.labels" . | nindent 4 }}
+    byconity-role: server
+data:
+  server.yaml: |
+    {{- $ports := dict "tcp_port" .Values.byconity.ports.tcp "http_port" .Values.byconity.ports.http "rpc_port" .Values.byconity.ports.rpc "exchange_port" .Values.byconity.ports.exchange "exchange_status_port" .Values.byconity.ports.exchangeStatus }}
+    {{- $server_service := dict "service" (printf "%s-%s" (include "byconity.fullname" .) "server") "headless_service" (printf "%s-%s-headless" (include "byconity.fullname" .) "server") "psm" (printf "%s-%s" (include "byconity.fullname" .) "server") }}
+    {{- $tso_service := dict "service" (printf "%s-%s" (include "byconity.fullname" .) "tso") "headless_service" (printf "%s-%s-headless" (include "byconity.fullname" .) "tso") "psm" (printf "%s-%s" (include "byconity.fullname" .) "tso") }}
+    {{- $dm_service := dict "service" (printf "%s-%s" (include "byconity.fullname" .) "daemon-manager") "headless_service" (printf "%s-%s-headless" (include "byconity.fullname" .) "daemon-manager") "psm" (printf "%s-%s" (include "byconity.fullname" .) "daemon-manager") }}
+    {{- $rm_service := dict "service" (printf "%s-%s" (include "byconity.fullname" .) "resource-manager") "headless_service" (printf "%s-%s-headless" (include "byconity.fullname" .) "resource-manager") "psm" (printf "%s-%s" (include "byconity.fullname" .) "resource-manager") }}
+    {{- $service_discovery := dict "service_discovery" (dict "server" $server_service "tso" $tso_service "daemon_manager" $dm_service "resource_manager" $rm_service) }}
+    {{- $catalog := dict "catalog" (dict "name_space" (include "byconity.fullname" .)) }}
+    {{- $hdfs_addr := dict "hdfs_addr" .Values.byconity.hdfs_address }}
+    {{- .Files.Get "files/server.yaml" | fromYaml | merge .Values.byconity.server.configOverwrite .Values.byconity.configOverwrite $hdfs_addr $catalog $service_discovery $ports | toYaml | nindent 4 }}
+  users.yaml: |
+    {{- .Files.Get "files/users.yaml" | fromYaml | merge .Values.byconity.usersOverwrite | toYaml | nindent 4 }}
+  hdfs3.xml: |
+    <configuration>
+        {{- range $key, $val := $.Values.byconity.hdfs3Config }}
+        <property>
+            <name>{{ $key }}</name>
+            <value>{{ $val }}</value>
+        </property>
+        {{- end }}
+    </configuration>
+  cnch-config.yaml: |
+    {{- $ports := dict "tcp_port" .Values.byconity.ports.tcp "http_port" .Values.byconity.ports.http "rpc_port" .Values.byconity.ports.rpc "exchange_port" .Values.byconity.ports.exchange "exchange_status_port" .Values.byconity.ports.exchangeStatus }}
+    {{- $server_service := dict "service" (printf "%s-%s" (include "byconity.fullname" .) "server") "headless_service" (printf "%s-%s-headless" (include "byconity.fullname" .) "server") "psm" (printf "%s-%s" (include "byconity.fullname" .) "server") }}
+    {{- $tso_service := dict "service" (printf "%s-%s" (include "byconity.fullname" .) "tso") "headless_service" (printf "%s-%s-headless" (include "byconity.fullname" .) "tso") "psm" (printf "%s-%s" (include "byconity.fullname" .) "tso") }}
+    {{- $dm_service := dict "service" (printf "%s-%s" (include "byconity.fullname" .) "daemon-manager") "headless_service" (printf "%s-%s-headless" (include "byconity.fullname" .) "daemon-manager") "psm" (printf "%s-%s" (include "byconity.fullname" .) "daemon-manager") }}
+    {{- $rm_service := dict "service" (printf "%s-%s" (include "byconity.fullname" .) "resource-manager") "headless_service" (printf "%s-%s-headless" (include "byconity.fullname" .) "resource-manager") "psm" (printf "%s-%s" (include "byconity.fullname" .) "resource-manager") }}
+    {{- $service_discovery := dict "service_discovery" (dict "server" $server_service "tso" $tso_service "daemon_manager" $dm_service "resource_manager" $rm_service) }}
+    {{- $catalog := dict "catalog" (dict "name_space" (include "byconity.fullname" .)) }}
+    {{- $hdfs_addr_dict := dict "hdfs_addr" .Values.byconity.hdfs_address }}
+    {{- $hdfs_ha_nameservice_dict := dict "hdfs_ha_nameservice" .Values.byconity.hdfs_ha_nameservice }}
+    {{- $hdfs_addr := (empty .Values.byconity.hdfs_ha_nameservice | ternary $hdfs_addr_dict $hdfs_ha_nameservice_dict) }}
+    {{- .Files.Get "files/cnch-config.yaml" | fromYaml | merge  $hdfs_addr $catalog $service_discovery $ports | toYaml | nindent 4 }}

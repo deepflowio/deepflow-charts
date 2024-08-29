@@ -1,0 +1,112 @@
+{{- $imageRepository := tpl $.Values.image.repository . }}
+{{- with .Values.byconity.resourceManager }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "byconity.fullname" $ }}-resource-manager
+  labels:
+    {{- include "byconity.labels" $ | nindent 4 }}
+    byconity-role: resource-manager
+spec:
+  replicas: {{ .replicas }}
+  selector:
+    matchLabels:
+      {{- include "byconity.selectorLabels" $ | nindent 6 }}
+      byconity-role: resource-manager
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      {{- with .podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "byconity.selectorLabels" $ | nindent 8 }}
+        byconity-role: resource-manager
+    spec:
+      containers:
+        - name: byconity-resource-manager
+          image: "{{ $imageRepository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.imagePullPolicy }}
+          env:
+            {{- toYaml $.Values.byconity.commonEnvs | nindent 12 }}
+            - name: BYCONITY_ROLE
+              value: resource-manager
+          {{- if $.Values.byconity.additionalEnvs }}
+            {{- toYaml $.Values.byconity.additionalEnvs | nindent 12 }}
+          {{- end }}
+          {{- if .resources }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: tcp
+              containerPort: {{ $.Values.byconity.ports.tcp }}
+          readinessProbe:
+            {{- .readinessProbe | toYaml | nindent 12 }}
+          livenessProbe:
+            {{- .livenessProbe | toYaml | nindent 12 }}
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/opt/byconity/scripts/lifecycle/poststart"]
+            preStop:
+              exec:
+                command: ["/opt/byconity/scripts/lifecycle/prestop"]
+          volumeMounts:
+            - name: run
+              mountPath: /etc/service/byconity/run
+              subPath: run
+            - name: config
+              mountPath: /etc/byconity
+            - name: lifecycle
+              mountPath: /opt/byconity/scripts/lifecycle
+            - name: fdb-config
+              mountPath: /etc/byconity/fdb
+          {{- if $.Values.byconity.additionalVolumes.volumeMounts }}
+            {{- toYaml $.Values.byconity.additionalVolumes.volumeMounts | nindent 12 }}
+          {{- end }}
+          {{- if .securityContext }}
+          securityContext:
+            {{- toYaml .securityContext | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: run
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-rm-run
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-rm-config
+        - name: lifecycle
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-lifecycle
+            defaultMode: 0755
+        - name: fdb-config
+          configMap:
+            name: {{ include "byconity.fullname" $ }}-fdb-config
+      {{- if $.Values.byconity.additionalVolumes.volumes }}
+        {{- toYaml $.Values.byconity.additionalVolumes.volumes | nindent 8 }}
+      {{- end }}
+      hostNetwork: {{ .hostNetwork }}
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      imagePullSecrets:
+      {{- with $.Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

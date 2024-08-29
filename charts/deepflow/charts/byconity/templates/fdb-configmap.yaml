@@ -1,0 +1,9 @@
+{{ if .Values.byconity.use_existing_fdb }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "byconity.fullname" $ }}-fdb-config
+data:
+  cluster-file: |
+    {{ $.Values.byconity.fdb_cluster_file }}
+{{ end }}

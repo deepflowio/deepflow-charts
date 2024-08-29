@@ -1,0 +1,40 @@
+
+catalog:
+  name_space: default
+cnch_type: server
+service_discovery:
+  mode: dns
+  cluster: default
+  server:
+    service: xxx
+    headless_service: xxx
+  vw: {}
+  daemon_manager:
+    service: xxx
+    headless_service: xxx
+service_discovery_kv:
+  server_manager:
+    host_path: data.cnch.server-election
+    refresh_interval_ms: 1000
+    expired_interval_ms: 6000
+  resource_manager:
+    host_path: data.cnch.resource_manager-election
+    refresh_interval_ms: 1000
+    expired_interval_ms: 6000
+  tso:
+    host_path: data.cnch.tso-election
+    refresh_interval_ms: 1000
+    expired_interval_ms: 6000
+tso_service:
+  tso_window_ms: 3000
+  tso_get_leader_info_interval_ms: 0
+  tso_max_retry_count: 3
+catalog_service:
+  type: fdb
+  fdb:
+    cluster_file: /etc/byconity/fdb/cluster-file
+tcp_port: 9000
+http_port: 8123
+rpc_port: 8124
+exchange_port: 9410
+exchange_status_port: 9510

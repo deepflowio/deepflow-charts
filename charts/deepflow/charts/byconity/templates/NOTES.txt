@@ -1,0 +1,5 @@
+Byconity cluster "{{ include "byconity.fullname" . }}" deployed successfully! Please follow instructions to access your cluster.
+
+$ kubectl -n {{ .Release.Namespace }} exec -it sts/{{ include "byconity.fullname" . }}-server -- bash
+$ clickhouse client
+172.16.1.1 :) show databases

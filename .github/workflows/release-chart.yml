@@ -149,6 +149,7 @@ jobs:
 
       - name: sync image
         run: |
+          sleep 300
           DEPENDSIMAGE=$(kubectl get pods -n deepflow -o  jsonpath={.items[*].spec.containers[*].image}|awk -F" " '{for(i=1;i<=NF;i++) print $i}' |grep -v deepflow|sort -u)
           for SYNCIMAGE in $DEPENDSIMAGE
             do 

@@ -35,6 +35,8 @@ global:
   ## Whether to enable allInone local storage, if enabled, the local /opt directory is used to store data by default, ignoring the node affinity check, and is not responsible for any data persistence
   allInOneLocalStorage: false 
   storageClass: ""
+  ## Select a storage engine. Currently, clickhouse and byconity are available
+  storageEngine: clickhouse  
   externalClickHouse:
     enabled: false  ## Enable external ClickHouse
     type: ep
@@ -326,9 +328,9 @@ configmap:
         database: flow_tag
         user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
-        host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+        host: '{{ if eq $.Values.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
         user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
-      trisolaris:
+        endpoint-tcp-port-name: '{{ if eq $.Values.storageEngine "clickhouse" }}tcp-port{{ else }}port0{{ end }}'      trisolaris:
         chrony:
           host: "{{ tpl .Values.global.ntpServer . }}"
           port: 123
@@ -341,7 +343,7 @@ configmap:
         database: flow_tag
         user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
-        host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+        host: '{{ if eq $.Values.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
         user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
         timeout: 60
       deepflow-app:
@@ -351,12 +353,14 @@ configmap:
       ckdb:
         # use internal or external ckdb
         external: "{{ $.Values.global.externalClickHouse.enabled }}"
-        host: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
+        type: "{{ $.Values.global.storageEngine }}"
+        host: '{{ if eq $.Values.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
         port: 9000
+        endpoint-tcp-port-name: '{{ if eq $.Values.storageEngine "clickhouse" }}tcp-port{{ else }}port0{{ end }}'
         # if `external` is 'true', default value is 'default', else 'df_cluster'
         cluster-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.clusterName}}{{end}}"
         # if `external` is 'true', default value 'default', else 'df_storage'
-        storage-policy:  "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.storagePolicy}}{{end}}"
+        storage-policy:  '{{ if eq $.Values.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.storagePolicy}}{{end}}{{ else }}cnch_default_s3{{ end }}'
       ckdb-auth:
         username: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         # '#','@' special characters are not supported in passwords
@@ -1026,3 +1030,368 @@ stella-agent-ce:
     #       values: controller
   nodeAffinityTermLabelSelector: []
 
+
+
+
+byconity:
+  enabled: false
+  nameOverride: ""
+  fullnameOverride: ""
+
+  image:
+    repository: "{{ .Values.global.image.repository }}/byconity"
+    tag: 1.0.0
+    imagePullPolicy: IfNotPresent
+  fdbShell:
+    image:
+      repository: "{{ .Values.global.image.repository }}"
+  byconity:
+    configOverwrite:
+      storage_configuration:
+        cnch_default_policy: cnch_default_s3
+        disks:
+          server_s3_disk_0:
+            path: byconity0
+            endpoint: https://oss-cn-beijing-internal.aliyuncs.com
+            region: cn-beijing
+            bucket: byconity
+            ak_id: XXXXXXX
+            ak_secret: XXXXXXX
+            type: bytes3
+            is_virtual_hosted_style: true
+
+        policies:
+          cnch_default_s3:
+            volumes:
+              bytes3:
+                default: server_s3_disk_0
+                disk: server_s3_disk_0
+  
+    ports:
+      tcp: 9000
+      http: 8123
+      rpc: 8124
+      tcpSecure: 9100
+      https: 9123
+      exchange: 9410
+      exchangeStatus: 9510
+
+    usersOverwrite:
+      users:
+        default:
+          password: "YSDeepFlow@3q302"
+        probe:
+          password: probe
+      profiles:
+        default:
+          allow_experimental_live_view: 1
+          enable_multiple_tables_for_cnch_parts: 1
+
+
+    server:
+      replicas: 1
+      image: ""
+      podAnnotations: { }
+      resources: { }
+      hostNetwork: false
+      nodeSelector: { }
+      tolerations: [ ]
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: tsdb
+                operator: In
+                values:
+                - enable
+      imagePullSecrets: [ ]
+      securityContext: { }
+      storage:
+        localDisk:
+          pvcSpec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 30Gi
+            storageClassName: openebs-hostpath #replace to your storageClassName
+        log:
+          pvcSpec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi
+            storageClassName: openebs-hostpath #replace to your storageClassName
+      configOverwrite:
+        logger:
+          level: trace
+        disk_cache_strategies:
+          simple:
+            lru_max_size: 429496729600 # 400Gi
+        # timezone: Etc/UTC
+
+    tso:
+      replicas: 1
+      image: ""
+      podAnnotations: { }
+      resources: { }
+      hostNetwork: false
+      nodeSelector: { }
+      tolerations: [ ]
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: tsdb
+                operator: In
+                values:
+                - enable
+      imagePullSecrets: [ ]
+      securityContext: { }
+      configOverwrite: { }
+      additionalVolumes: { }
+      storage:
+        localDisk:
+          pvcSpec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+            storageClassName: openebs-hostpath #replace to your storageClassName
+        log:
+          pvcSpec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+            storageClassName: openebs-hostpath #replace to your storageClassName
+
+
+    daemonManager:
+      replicas: 1 # Please keep single instance now, daemon manager HA is WIP
+      image: ""
+      podAnnotations: { }
+      resources: { }
+      hostNetwork: false
+      nodeSelector: { }
+      tolerations: [ ]
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: tsdb
+                operator: In
+                values:
+                - enable
+      imagePullSecrets: [ ]
+      securityContext: { }
+      configOverwrite: { }
+
+    resourceManager:
+      replicas: 1
+      image: ""
+      podAnnotations: { }
+      resources: { }
+      hostNetwork: false
+      nodeSelector: { }
+      tolerations: [ ]
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: tsdb
+                operator: In
+                values:
+                - enable
+      imagePullSecrets: [ ]
+      securityContext: { }
+      configOverwrite: { }
+
+    defaultWorker: &defaultWorker
+      replicas: 1
+      image: ""
+      podAnnotations: { }
+      resources: { }
+      hostNetwork: false
+      nodeSelector: { }
+      tolerations: [ ]
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: tsdb
+                operator: In
+                values:
+                - enable
+      imagePullSecrets: [ ]
+      securityContext: { }
+      livenessProbe:
+        exec:
+          command: [ "/opt/byconity/scripts/lifecycle/liveness" ]
+        failureThreshold: 6
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 20
+      readinessProbe:
+        exec:
+          command: [ "/opt/byconity/scripts/lifecycle/readiness" ]
+        failureThreshold: 5
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 10
+      storage:
+        localDisk:
+          pvcSpec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 50Gi
+            storageClassName: openebs-hostpath #replace to your storageClassName
+        log:
+          pvcSpec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+            storageClassName: openebs-hostpath #replace to your storageClassName
+      configOverwrite:
+        logger:
+          level: trace
+        disk_cache_strategies:
+          simple:
+            lru_max_size: 42949672960 # 40Gi
+        # timezone: Etc/UTC
+
+    virtualWarehouses:
+      - <<: *defaultWorker
+        name: vw_default
+        replicas: 1
+      - <<: *defaultWorker
+        name: vw_write
+        replicas: 1
+
+    commonEnvs:
+      - name: MY_POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: "metadata.namespace"
+      - name: MY_POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: "metadata.name"
+      - name: MY_UID
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: "metadata.uid"
+      - name: MY_POD_IP
+        valueFrom:
+          fieldRef:
+            fieldPath: "status.podIP"
+      - name: MY_HOST_IP
+        valueFrom:
+          fieldRef:
+            # fieldPath: "status.hostIP"
+            fieldPath: "status.podIP"
+      - name: CONSUL_HTTP_HOST
+        valueFrom:
+          fieldRef:
+            fieldPath: "status.hostIP"
+
+    additionalEnvs: [ ]
+
+    additionalVolumes:
+      volumes: [ ]
+      volumeMounts: [ ]
+
+    postStart: ""
+    preStop: ""
+    livenessProbe: ""
+    readinessProbe: ""
+
+    ingress:
+      enabled: false
+
+  # For more detailed usage, please check fdb-kubernetes-operator API doc: https://github.com/FoundationDB/fdb-kubernetes-operator/blob/main/docs/cluster_spec.md
+  fdb:
+    enabled: true
+    enableCliPod: true
+    version: 7.1.15
+    clusterSpec:
+      mainContainer:
+        imageConfigs:
+        - version: 7.1.15
+          baseImage: "{{ .Values.global.image.repository }}/foundationdb"
+          tag: 7.1.15
+      sidecarContainer:
+        imageConfigs:
+        - version: 7.1.15
+          baseImage: "{{ .Values.global.image.repository }}/foundationdb-kubernetes-sidecar"
+          tag: 7.1.15-1
+      processCounts:
+        stateless: 3
+        log: 3
+        storage: 3
+      processes:
+        general:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: openebs-hostpath #replace to your storageClassName
+              resources:
+                requests:
+                  storage: 20Gi
+
+  fdb-operator:
+    enabled: true
+    resources:
+      limits:
+        cpu: 1
+        memory: 512Mi
+      requests:
+        cpu: 1
+        memory: 512Mi
+    affinity:  
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: tsdb
+              operator: In
+              values:
+              - enable
+    image:
+      repository: "{{ .Values.global.image.repository }}/fdb-kubernetes-operator"
+      tag: v1.9.0
+      pullPolicy: IfNotPresent
+    initContainerImage:
+      repository:  "{{ $.Values.global.image.repository }}/foundationdb-kubernetes-sidecar"
+    initContainers:
+      6.2:
+        image:
+          repository: "{{ $.Values.global.image.repository }}/foundationdb/foundationdb-kubernetes-sidecar"
+          tag: 6.2.30-1
+          pullPolicy: IfNotPresent
+      6.3:
+        image:
+          repository: "{{ $.Values.global.image.repository }}/foundationdb/foundationdb-kubernetes-sidecar"
+          tag: 6.3.23-1
+          pullPolicy: IfNotPresent
+      7.1:
+        image:
+          repository: "{{ $.Values.global.image.repository }}/foundationdb/foundationdb-kubernetes-sidecar"
+          tag: 7.1.15-1
+          pullPolicy: IfNotPresent
+  hdfs:
+    enabled: false

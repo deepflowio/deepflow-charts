@@ -1,0 +1,51 @@
+{{- if and .Values.fdb.enableCliPod .Values.fdb.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "byconity.fullname" . }}-fdbcli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fdbcli
+      app.kubernetes.io/instance: {{ include "byconity.fullname" . }}
+      app.kubernetes.io/component: cli
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fdbcli
+        app.kubernetes.io/instance: {{ include "byconity.fullname" . }}
+        app.kubernetes.io/component: cli
+    spec:
+      imagePullSecrets:
+      {{- with .Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: fdbcli
+        image: "{{ tpl $.Values.fdbShell.image.repository . }}/foundationdb:{{ .Values.fdb.version }}"
+        env:
+        - name: FDB_CLUSTER_FILE
+          value: /mnt/config-volume/cluster-file
+        volumeMounts:
+        - name: config-volume
+          mountPath: /mnt/config-volume
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: "1"
+            memory: 1Gi
+      {{- with .Values.byconity.server.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ include "byconity.fullname" . }}-fdb-config
+{{- end }}
