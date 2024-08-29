@@ -69,11 +69,11 @@ global:
 image:
   server:
     repository: "{{ .Values.global.image.repository }}/deepflow-server"
-    tag: v6.5
+    tag: v6.6.4
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
     repository:  "{{ .Values.global.image.repository }}/deepflow-app"
-    tag: v6.5
+    tag: v6.6.4
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
 
 imagePullSecrets: []
@@ -330,7 +330,8 @@ configmap:
         port: 9000
         host: '{{ if eq $.Values.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
         user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
-        endpoint-tcp-port-name: '{{ if eq $.Values.storageEngine "clickhouse" }}tcp-port{{ else }}port0{{ end }}'      trisolaris:
+        endpoint-tcp-port-name: '{{ if eq $.Values.storageEngine "clickhouse" }}tcp-port{{ else }}port0{{ end }}'
+      trisolaris:
         chrony:
           host: "{{ tpl .Values.global.ntpServer . }}"
           port: 123
@@ -665,7 +666,7 @@ deepflow-agent:
     repository: "{{ .Values.global.image.repository }}/deepflow-agent"
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v6.5
+    tag: v6.6.4
 
   imagePullSecrets: []
   nameOverride: ""
@@ -834,7 +835,7 @@ grafana:
 
   extraInitContainers:
     - name: init-custom-plugins
-      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.5"
+      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.6.4"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: custom-plugins
