@@ -328,9 +328,9 @@ configmap:
         database: flow_tag
         user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
-        host: '{{ if eq $.Values.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
+        host: '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
         user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
-        endpoint-tcp-port-name: '{{ if eq $.Values.storageEngine "clickhouse" }}tcp-port{{ else }}port0{{ end }}'
+        endpoint-tcp-port-name: '{{ if eq $.Values.global.storageEngine "clickhouse" }}tcp-port{{ else }}port0{{ end }}'
       trisolaris:
         chrony:
           host: "{{ tpl .Values.global.ntpServer . }}"
@@ -344,7 +344,7 @@ configmap:
         database: flow_tag
         user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
-        host: '{{ if eq $.Values.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
+        host: '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
         user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
         timeout: 60
       deepflow-app:
@@ -355,13 +355,13 @@ configmap:
         # use internal or external ckdb
         external: "{{ $.Values.global.externalClickHouse.enabled }}"
         type: "{{ $.Values.global.storageEngine }}"
-        host: '{{ if eq $.Values.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
+        host: '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
         port: 9000
-        endpoint-tcp-port-name: '{{ if eq $.Values.storageEngine "clickhouse" }}tcp-port{{ else }}port0{{ end }}'
+        endpoint-tcp-port-name: '{{ if eq $.Values.global.storageEngine "clickhouse" }}tcp-port{{ else }}port0{{ end }}'
         # if `external` is 'true', default value is 'default', else 'df_cluster'
         cluster-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.clusterName}}{{end}}"
         # if `external` is 'true', default value 'default', else 'df_storage'
-        storage-policy:  '{{ if eq $.Values.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.storagePolicy}}{{end}}{{ else }}cnch_default_s3{{ end }}'
+        storage-policy:  '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.storagePolicy}}{{end}}{{ else }}cnch_default_s3{{ end }}'
       ckdb-auth:
         username: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         # '#','@' special characters are not supported in passwords
