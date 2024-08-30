@@ -1079,8 +1079,6 @@ byconity:
 
     usersOverwrite:
       users:
-        default:
-          password: "YSDeepFlow@3q302"
         probe:
           password: probe
       profiles:
