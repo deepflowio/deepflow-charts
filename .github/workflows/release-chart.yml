@@ -164,6 +164,22 @@ jobs:
               docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE       
               docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE 
             done
+      - name: sync init container image
+        run: |
+          DEPENDSIMAGE=$(kubectl get pods -n deepflow -o  jsonpath={.items[*].spec.initContainers[*].image}awk -F" " '{for(i=1;i<=NF;i++) print $i}' |grep -v deepflow|sort -u)
+          for SYNCIMAGE in $DEPENDSIMAGE
+            do 
+              SORTIMAGE=$(echo $SYNCIMAGE|awk -F/ '{print $NF}')
+              echo $SORTIMAGE
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE"
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE"
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE"
+              echo "skopeo copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE "
+              docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://deepflowce/$SORTIMAGE
+              docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://registry.cn-beijing.aliyuncs.com/deepflow-ce/$SORTIMAGE
+              docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://registry.cn-hongkong.aliyuncs.com/deepflow-ce/$SORTIMAGE       
+              docker run -v ~/.docker/config.json:/tmp/auth.json quay.io/skopeo/stable:latest copy -a  docker://$SYNCIMAGE docker://ghcr.io/deepflowio/deepflow-ce/$SORTIMAGE 
+            done
 
   release_stable_chart:
     name: release stable chart
