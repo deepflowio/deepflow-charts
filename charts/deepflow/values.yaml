@@ -1098,14 +1098,7 @@ byconity:
       nodeSelector: { }
       tolerations: [ ]
       affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: tsdb
-                operator: In
-                values:
-                - enable
+        nodeAffinity: {}
       imagePullSecrets: [ ]
       securityContext: { }
       storage:
@@ -1141,15 +1134,7 @@ byconity:
       hostNetwork: false
       nodeSelector: { }
       tolerations: [ ]
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: tsdb
-                operator: In
-                values:
-                - enable
+      affinity: {}
       imagePullSecrets: [ ]
       securityContext: { }
       configOverwrite: { }
@@ -1181,15 +1166,7 @@ byconity:
       hostNetwork: false
       nodeSelector: { }
       tolerations: [ ]
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: tsdb
-                operator: In
-                values:
-                - enable
+      affinity: {}
       imagePullSecrets: [ ]
       securityContext: { }
       configOverwrite: { }
@@ -1202,15 +1179,7 @@ byconity:
       hostNetwork: false
       nodeSelector: { }
       tolerations: [ ]
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: tsdb
-                operator: In
-                values:
-                - enable
+      affinity: {}
       imagePullSecrets: [ ]
       securityContext: { }
       configOverwrite: { }
@@ -1223,15 +1192,7 @@ byconity:
       hostNetwork: false
       nodeSelector: { }
       tolerations: [ ]
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: tsdb
-                operator: In
-                values:
-                - enable
+      affinity: {}
       imagePullSecrets: [ ]
       securityContext: { }
       livenessProbe:
@@ -1363,15 +1324,7 @@ byconity:
       requests:
         cpu: 1
         memory: 512Mi
-    affinity:  
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: tsdb
-              operator: In
-              values:
-              - enable
+    affinity: {}
     image:
       repository: "{{ .Values.global.image.repository }}/fdb-kubernetes-operator"
       tag: v1.9.0
