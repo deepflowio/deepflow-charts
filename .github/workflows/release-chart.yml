@@ -166,7 +166,7 @@ jobs:
             done
       - name: sync init container image
         run: |
-          DEPENDSIMAGE=$(kubectl get pods -n deepflow -o  jsonpath={.items[*].spec.initContainers[*].image}awk -F" " '{for(i=1;i<=NF;i++) print $i}' |grep -v deepflow|sort -u)
+          DEPENDSIMAGE=$(kubectl get pods -n deepflow -o  jsonpath={.items[*].spec.initContainers[*].image}|awk -F" " '{for(i=1;i<=NF;i++) print $i}' |grep -v deepflow|sort -u)
           for SYNCIMAGE in $DEPENDSIMAGE
             do 
               SORTIMAGE=$(echo $SYNCIMAGE|awk -F/ '{print $NF}')
