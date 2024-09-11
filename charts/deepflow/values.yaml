@@ -15,6 +15,7 @@ global:
     mysql: deepflow
     #grafana: deepflow 
     clickhouse:
+    byconity: 
   podManagementPolicy: "OrderedReady"
   replicas: 1  ## replicas for deepflow-server and clickhouse
   podAntiAffinityLabelSelector: []
@@ -329,7 +330,7 @@ configmap:
         user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
         host: '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
-        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
+        user-password: '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}{{ else }}{{ .Values.global.password.byconity }}{{ end }}'
         endpoint-tcp-port-name: '{{ if eq $.Values.global.storageEngine "clickhouse" }}tcp-port{{ else }}port0{{ end }}'
       trisolaris:
         chrony:
@@ -345,7 +346,7 @@ configmap:
         user-name: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         port: 9000
         host: '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{ end }}{{ else }}{{ $.Release.Name }}-byconity-server{{ end }}'
-        user-password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
+        user-password: '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}{{ else }}{{ .Values.global.password.byconity }}{{ end }}'
         timeout: 60
       deepflow-app:
         host: "{{ $.Release.Name }}-app"
@@ -365,7 +366,7 @@ configmap:
       ckdb-auth:
         username: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
         # '#','@' special characters are not supported in passwords
-        password: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
+        password: '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}{{ else }}{{ .Values.global.password.byconity }}{{ end }}'
       es-syslog: false
 
   app.yaml:
@@ -870,7 +871,7 @@ grafana:
     MYSQL_PASSWORD:  "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
     CLICKHOUSE_SERVER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Release.Name }}-external-clickhouse{{ else }}{{ $.Release.Name }}-clickhouse{{end}}"
     CLICKHOUSE_USER: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.username }}{{ else }}default{{end}}"
-    CLICKHOUSE_PASSWORD: "{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}"
+    CLICKHOUSE_PASSWORD: '{{ if eq $.Values.global.storageEngine "clickhouse" }}{{ if $.Values.global.externalClickHouse.enabled }}{{ $.Values.global.externalClickHouse.password }}{{ else }}{{ .Values.global.password.clickhouse }}{{end}}{{ else }}{{ .Values.global.password.byconity }}{{ end }}'
     DEEPFLOW_AI_URL: 'http://{{ include "deepflow.fullname" . }}-stella-agent-ce:20831'
 
   ingress:
@@ -1079,6 +1080,8 @@ byconity:
 
     usersOverwrite:
       users:
+        default:
+          password: ""
         probe:
           password: probe
       profiles:
