@@ -36,3 +36,7 @@ dependencies:
   repository: ""
   version: '*.*.*'
   condition: stella-agent-ce.enabled
+- name: byconity
+  repository: ""
+  version: '*.*.*'
+  condition: byconity.enabled
