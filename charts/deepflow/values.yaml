@@ -678,8 +678,8 @@ deepflow-agent:
   - "daemonset"
   # - "watcher"
   # 
-  tke_sidecar: false
-  AgentWatchDisabled: false  # Whether to disable the watch for Agent configured through daemonset
+  tkeSidecar: false
+  daemonsetWatchDisabled: false  # Whether to disable the watch for Agent configured through daemonset
   podAnnotations: {}
   nodeIPInjection: true
   podSecurityContext: {}
