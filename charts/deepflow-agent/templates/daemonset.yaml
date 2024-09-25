@@ -101,6 +101,10 @@ spec:
           - name: CTRL_NETWORK_INTERFACE
             value: "eth0"
           {{- end }}
+          {{- if .Values.AgentWatchDisabled }}
+          - name: K8S_WATCH_POLICY
+            value: "watch-disabled"
+          {{- end }}
           - name: K8S_POD_IP_FOR_DEEPFLOW
             valueFrom:
               fieldRef:
