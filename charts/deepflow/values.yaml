@@ -298,7 +298,7 @@ tolerations: []
 
 
 config:
-  tridentTypeForUnkonwVtap: 3
+  tridentTypeForUnknowVtap: 3
 configmap:
   server.yaml:
     # logfile path
@@ -337,7 +337,7 @@ configmap:
           host: "{{ tpl .Values.global.ntpServer . }}"
           port: 123
           timeout: 1
-        trident-type-for-unkonw-vtap: "{{ .Values.config.tridentTypeForUnkonwVtap }}"
+        trident-type-for-unknow-vtap: "{{ .Values.config.tridentTypeForUnknowVtap }}"
     querier:
       # querier http listenport
       listen-port: 20416
