@@ -20,7 +20,7 @@ image:
   repository: registry.cn-hongkong.aliyuncs.com/deepflow-ce/deepflow-agent
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: v6.6.8
+  tag: v6.6
 
 env: []
 
