@@ -568,7 +568,7 @@ mysql:
     repository: "{{ .Values.global.image.repository }}/mysql"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 8.0.31
+    tag: 8.0.39
 
   podSecurityContext: {}
     # fsGroup: 2000
