@@ -406,7 +406,7 @@ clickhouse:
     repository: "{{ .Values.global.image.repository }}/clickhouse-server"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 23.8.7.24
+    tag: 23.10
 
   timezone: "{{ .Values.global.timezone }}"
   imagePullSecrets: []
