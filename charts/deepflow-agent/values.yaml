@@ -12,7 +12,7 @@ global:
 deployComponent: 
 - "daemonset"
 # - "watcher"
-# 
+
 tkeSidecar: false
 daemonsetWatchDisabled: false  # Whether to disable the watch for Agent configured through daemonset
 
@@ -68,14 +68,11 @@ sysctlInitContainer:
 extraVolumeMounts: []
 service:
   ## Configuration for Clickhouse service
-  ##
   annotations: {}
   labels: {}
   clusterIP: ""
 
   ## Port for Clickhouse Service to listen on
-  ##
-
   ports:
   - name: receive
     port: 80
@@ -94,7 +91,6 @@ service:
   externalTrafficPolicy: Cluster
 
   ## Service type
-  ##
   type: ClusterIP
 
 deepflowServerNodeIPS:
@@ -116,16 +112,11 @@ deepflowAgentConfig:
     {{- if .Values.deepflowK8sClusterID }}{{ nindent 4 "kubernetes-cluster-id:" }} {{ .Values.deepflowK8sClusterID }}{{ end -}}
     {{- if .Values.controllerPort }}{{ nindent 4 "controller-port:" }} {{ .Values.controllerPort }}{{ end -}}
     {{- if .Values.clusterNAME }}{{ nindent 4 "kubernetes-cluster-name:" }} {{ .Values.clusterNAME }}{{ end -}}
-    {{- if .Values.teamId }}{{ nindent 4 "team-id:" }} {{ .Values.teamId }}{{ end -}}
 
-resources:
-  limits:
-    cpu: 1000m
-    memory: 768Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
-
+## Starting in v6.6, manage the agent-group-config object via deepflow-ctl to configure Agent resource limits, replacing direct edits to the resources field in the Kubernetes YAML.​
+## https://www.deepflow.io/docs/zh/best-practice/agent-advanced-config/
+## https://www.deepflow.io/docs/zh/configuration/agent/#global.limits
+##resources: {}
 
 nodeSelector: {}
 
@@ -141,4 +132,3 @@ podAffinityLabelSelector: []
 podAffinityTermLabelSelector: []
 nodeAffinityLabelSelector: []
 nodeAffinityTermLabelSelector: []
-
