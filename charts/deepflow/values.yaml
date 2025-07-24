@@ -34,7 +34,7 @@ global:
     deepflowServerhealthCheck: 30417
   ntpServer: ntp.aliyun.com
   ## Whether to enable allInone local storage, if enabled, the local /opt directory is used to store data by default, ignoring the node affinity check, and is not responsible for any data persistence
-  allInOneLocalStorage: false 
+  allInOneLocalStorage: false
   storageClass: ""
   ## Select a storage engine. Currently, clickhouse and byconity are available
   storageEngine: clickhouse  
@@ -124,14 +124,11 @@ server:
     timeoutSeconds: 1
   service:
     ## Configuration for deepflow-server service
-    ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
     ## Port for deepflow-server Service to listen on
-    ##
-
     ports:
     - name: querier
       port: 20416
@@ -181,11 +178,9 @@ server:
     loadBalancerSourceRanges: []
 
     ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-  
     externalTrafficPolicy: Cluster
 
     ## Service type
-    ##
     type: NodePort
 
   resources: {}
@@ -226,6 +221,7 @@ server:
   #     readOnly: true
   #     hostPath: /usr/shared/
 
+
 app:
   podAnnotations: {}
   replicas: "1"
@@ -250,20 +246,17 @@ app:
     timeoutSeconds: 1
   service:
     ## Configuration for deepflow querier service
-    ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
     ## Port for deepflow querier service to listen on
-    ##
     ports:
     - name: app
       port: 20418
       targetPort: 20418
       ## Port to expose on each node
       ## Only used if service.type is 'NodePort'
-      ##
       nodePort: 
       protocol: TCP
 
@@ -275,11 +268,9 @@ app:
     loadBalancerSourceRanges: []
 
     ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-    ##
     externalTrafficPolicy: Cluster
 
     ## Service type
-    ##
     type: ClusterIP
   resources: {}
   nodeSelector: {}
@@ -391,6 +382,7 @@ configmap:
       spec:
         l7_tracing_limit: 100
 
+
 clickhouse:
   enabled: true
   # Default values for clickhouse.
@@ -465,14 +457,11 @@ clickhouse:
     backgroudPoolSize: 32
   service:
     ## Configuration for ClickHouse service
-    ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
     ## Port for ClickHouse Service to listen on
-    ##
-
     ports:
     - name: http-port
       port: 8123
@@ -498,13 +487,10 @@ clickhouse:
     loadBalancerSourceRanges: []
 
     ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-  
     externalTrafficPolicy: Cluster
 
     ## Service type
-    ##
     type: ClusterIP
-
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -551,6 +537,7 @@ clickhouse:
     #       operator: In
     #       values: controller
   nodeAffinityTermLabelSelector: []
+
 
 mysql:
   enabled: true
@@ -601,14 +588,11 @@ mysql:
 
   service:
     ## Configuration for ClickHouse service
-    ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
     ## Port for ClickHouse Service to listen on
-    ##
-
     ports:
     - name: tcp
       port: 30130
@@ -623,13 +607,10 @@ mysql:
     loadBalancerSourceRanges: []
 
     ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-  
     externalTrafficPolicy: Cluster
 
     ## Service type
-    ##
     type: ClusterIP
-
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -677,7 +658,7 @@ deepflow-agent:
   deployComponent: 
   - "daemonset"
   # - "watcher"
-  # 
+
   tkeSidecar: false
   daemonsetWatchDisabled: false  # Whether to disable the watch for Agent configured through daemonset
   podAnnotations: {}
@@ -714,14 +695,11 @@ deepflow-agent:
 
   service:
     ## Configuration for ClickHouse service
-    ##
     annotations: {}
     labels: {}
     clusterIP: ""
 
     ## Port for ClickHouse Service to listen on
-    ##
-
     ports:
     - name: receive
       port: 80
@@ -737,11 +715,9 @@ deepflow-agent:
     loadBalancerSourceRanges: []
 
     ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-  
     externalTrafficPolicy: Cluster
 
     ## Service type
-    ##
     type: ClusterIP
 
   deepflowServerNodeIPS:
@@ -752,14 +728,10 @@ deepflow-agent:
   ## Set the port to the agent-group-config port
   externalAgentHttpProxyPort: 38086
 
-  resources:
-    limits:
-      cpu: 1000m
-      memory: 768Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
-
+  ## Starting in v6.6, manage the agent-group-config object via deepflow-ctl to configure Agent resource limits, replacing direct edits to the resources field in the Kubernetes YAML.​
+  ## https://www.deepflow.io/docs/zh/best-practice/agent-advanced-config/
+  ## https://www.deepflow.io/docs/zh/configuration/agent/#global.limits
+  ##resources: {}
 
   nodeSelector: {}
 
@@ -779,20 +751,16 @@ grafana:
   namespaceOverride: ""
 
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
-  ##
   forceDeployDatasources: false
 
   ## ForceDeployDashboard Create dashboard configmap even if grafana deployment has been disabled
-  ##
   forceDeployDashboards: false
 
   ## Deploy default dashboards
-  ##
   defaultDashboardsEnabled: true
 
   ## Timezone for the default dashboards
   ## Other options are: browser or a specific timezone, i.e. Europe/Luxembourg
-  ##
   defaultDashboardsTimezone: utc
   adminPassword: deepflow
 
@@ -905,7 +873,6 @@ grafana:
     #       name: ssl-redirect
     #       port:
     #         name: use-annotation
-
 
     tls: []
     #  - secretName: chart-example-tls
