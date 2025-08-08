@@ -8,14 +8,14 @@ global:
     ## AliyunYun Image repository address: registry.cn-beijing.aliyuncs.com/deepflow-ce
     repository: registry.cn-hongkong.aliyuncs.com/deepflow-ce
     pullPolicy: Always
-    imagePullSecrets: []
+  imagePullSecrets: []
   hostNetwork: false
   dnsPolicy: ClusterFirst
   password:
     mysql: deepflow
     #grafana: deepflow 
     clickhouse:
-    byconity: 
+    #byconity: 
   podManagementPolicy: "OrderedReady"
   replicas: 1  ## replicas for deepflow-server and clickhouse
   podAntiAffinityLabelSelector: []
